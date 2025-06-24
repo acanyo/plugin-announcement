@@ -1,0 +1,145 @@
+apiVersion: v1alpha1
+kind: Setting
+metadata:
+  name: plugin-announcement-settings
+spec:
+  forms:
+    - group: basic
+      label: 基本设置
+      formSchema:
+        - $el: a
+          attrs:
+            href: "https://docs.lik.cc"
+            class: "py-4 block"
+            target: "_blank"
+            style:
+              color: "#1890ff"
+              fontSize: "0.875em"
+              display: "flex"
+              align-items: "center"
+          children:
+            - $el: span
+              children: "查看 Ink AI 帮助文档"
+            - $el: img
+              attrs:
+                src: "/plugins/announcement/assets/static/img/link.svg"
+                width: "14px"
+                height: "14px"
+                style:
+                  margin-left: "4px"
+        - $el: span
+          children: "Halo交流群"
+        - $el: img
+          attrs:
+            src: "https://www.lik.cc/upload/iShot_2025-03-03_16.03.00.png"
+            width: "100px"
+            height: "120px"
+            style:
+              margin-left: "80px"
+        - $formkit: checkbox
+          label: 开启公告
+          name: showOnLoad
+          id: showOnLoad
+          key: showOnLoad
+          value: true
+          help: "是否在页面加载时自动显示、关闭后将不会主动弹出"
+        - $formkit: text
+          if: $get(showOnLoad).value === "true"
+          name: title
+          key: title
+          id: title
+          label: 通知标题
+          placeholder: 请输入通知标题
+          validation: required
+          help: 用于弹窗标题
+        - $formkit: textarea
+          if: $get(showOnLoad).value === "true"
+          name: content
+          key: content
+          id: content
+          label: 通知内容
+          placeholder: 请输入通知内容
+          validation: required
+          help: 用于弹窗内容
+        - $formkit: select
+          if: $get(showOnLoad).value === "true"
+          name: position
+          key: position
+          id: position
+          label: 弹窗位置
+          placeholder: 请选择弹窗显示位置
+          options:
+            - label: 居中
+              value: center
+            - label: 左下角
+              value: left-bottom
+            - label: 右下角
+              value: right-bottom
+            - label: 左上角
+              value: left-top
+            - label: 右上角
+              value: right-top
+          validation: required
+          help: 选择弹窗在页面上的显示位置
+        - $formkit: text
+          if: $get(showOnLoad).value === "true"
+          name: mainButtonText
+          key: mainButtonText
+          id: mainButtonText
+          label: 主按钮文字
+          placeholder: 请输入主按钮文字
+          validation: required
+          value: 确认
+          help: 主按钮显示的文字
+        - $formkit: color
+          if: $get(showOnLoad).value === "true"
+          name: mainButtonColor
+          key: mainButtonColor
+          id: mainButtonColor
+          label: 主按钮颜色
+          validation: required
+          value: "#165DFF"
+          help: 主按钮的颜色
+        - $formkit: text
+          if: $get(showOnLoad).value === "true"
+          name: secondaryButtonText
+          key: secondaryButtonText
+          id: secondaryButtonText
+          label: 副按钮文字
+          placeholder: 请输入副按钮文字
+          validation: required
+          value: 关闭
+          help: 副按钮显示的文字
+        - $formkit: color
+          if: $get(showOnLoad).value === "true"
+          name: secondaryButtonColor
+          key: secondaryButtonColor
+          id: secondaryButtonColor
+          label: 副按钮颜色
+          validation: required
+          value: "#86909C"
+          help: 副按钮的颜色
+        - $formkit: textarea
+          if: $get(showOnLoad).value === "true"
+          name: urlPatterns
+          key: urlPatterns
+          id: urlPatterns
+          label: 路径匹配规则
+          placeholder: 每行一个路径模式，如 / 或 /archives/*
+          help: 支持多个路径模式，每行一个
+        - $formkit: number
+          if: $get(showOnLoad).value === "true"
+          name: autoClose
+          key: autoClose
+          id: autoClose
+          label: 自动关闭时间（秒）
+          value: 0
+          help: 0 表示不自动关闭，其他为自动关闭秒数
+        - $formkit: checkbox
+          if: $get(showOnLoad).value === "true"
+          name: closeOnClickOutside
+          key: closeOnClickOutside
+          id: closeOnClickOutside
+          label: 点击外部关闭
+          value: true
+          help: 是否允许点击弹窗外部关闭通知

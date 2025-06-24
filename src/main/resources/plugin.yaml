@@ -1,0 +1,24 @@
+# Refer https://docs.halo.run/developer-guide/plugin/basics/manifest
+
+apiVersion: plugin.halo.run/v1alpha1
+kind: Plugin
+metadata:
+  # The name defines how the plugin is invoked, A unique name
+  name: announcement
+spec:
+  enabled: true
+  requires: ">=2.21.0"
+  author:
+    name: Handsome
+    website: https://github.com/Handsome
+  logo: logo.png
+  homepage: https://github.com/Handsome/announcement#readme
+  repo: https://github.com/Handsome/announcement
+  issues: https://github.com/Handsome/announcement/issues
+  displayName: "公告插件"
+  description: "为你的Halo2模板增加一个弹窗公告功能"
+  settingName: plugin-announcement-settings
+  configMapName: plugin-announcement-configMap
+  license:
+    - name: "GPL-3.0"
+      url: "https://github.com/Handsome/announcement/blob/main/LICENSE"
