@@ -1,3 +1,10 @@
+/* 通用样式重置 - 所有 likcc- 开头的元素 */
+[class*="likcc-"] {
+    all: revert;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
 /* 基础样式 */
 .likcc-notification-container {
     position: fixed;
@@ -78,6 +85,7 @@
     font-size: 16px;
     font-weight: 600;
     color: #1D2129;
+    line-height: 1.4;
 }
 
 .likcc-notification-close {
@@ -126,6 +134,7 @@
     cursor: pointer;
     transition: opacity 0.2s;
     color: white;
+    line-height: 1.4;
 }
 
 .likcc-notification-main-button:hover,
