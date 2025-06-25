@@ -115,6 +115,14 @@ spec:
           placeholder: 0 表示不限制
           value: 0
           help: 用户首次进入弹窗后，间隔多少小时再次弹出，为0或空表示不限制
+        - $formkit: checkbox
+          if: $get(showOnLoad).value === true
+          name: confettiEnable
+          key: confettiEnable
+          id: confettiEnable
+          label: 启用礼花爆炸效果
+          value: false
+          help: 是否在弹窗弹出时显示礼花爆炸动画
     - group: button
       label: 按钮设置
       formSchema:

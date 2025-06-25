@@ -27,6 +27,7 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
         PROPERTY_PLACEHOLDER_HELPER = new PropertyPlaceholderHelper("${", "}");
 
     private static final String SCRIPT_URL = "/plugins/announcement/assets/static/likcc-notification.js";
+    private static final String CONFETTI_URL = "/plugins/announcement/assets/static/confetti.browser.min.js";
     private static final String CSS_URL = "/plugins/announcement/assets/static/likcc-notification.css";
 
     private final SettingConfigGetter settingConfigGetter;
@@ -47,9 +48,10 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
                 // 生成 CSS 和 JS 标签
                 String cssContent = String.format("<link rel=\"stylesheet\" href=\"%s\" />", CSS_URL);
                 String scriptTag = String.format("<script src=\"%s\"></script>", SCRIPT_URL);
-                
+                String confettiTag = String.format("<script src=\"%s\"></script>", CONFETTI_URL);
+
                 // 拼接完整的 HTML 内容
-                String fullScript = cssContent + "\n" + scriptTag + "\n" + jsConfig;
+                String fullScript = cssContent + "\n" + scriptTag + "\n" + jsConfig+ "\n" + confettiTag;
                 iModel.add(modelFactory.createText(fullScript));
                 return Mono.empty();
             });
@@ -82,10 +84,8 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
             .switchIfEmpty(Mono.just("")); // 如果zip操作失败，返回空字符串
     }
 
-    private String buildScriptContent(SettingConfigGetter.BasicConfig basicConfig, 
-                                    SettingConfigGetter.ButtonConfig buttonConfig) {
-        final Properties properties = new Properties();
-
+    private String buildScriptContent(SettingConfigGetter.BasicConfig basicConfig, SettingConfigGetter.ButtonConfig buttonConfig) {
+        var properties = new Properties();
         properties.setProperty("title", escapeJavaScript(basicConfig.getTitle()));
         properties.setProperty("content", escapeJavaScript(basicConfig.getContent()));
         properties.setProperty("position", basicConfig.getPosition());
@@ -100,63 +100,51 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
         properties.setProperty("closeOnClickOutside", String.valueOf(basicConfig.isCloseOnClickOutside()));
         properties.setProperty("showOnLoad", String.valueOf(basicConfig.isShowOnLoad()));
         properties.setProperty("popupInterval", String.valueOf(basicConfig.getPopupInterval()));
+        properties.setProperty("confettiEnable", String.valueOf(basicConfig.isConfettiEnable()));
 
         // 主按钮
-        properties.setProperty("mainButtonText", escapeJavaScript(
-            buttonConfig != null ? buttonConfig.getMainButtonText() : "确认"));
-        properties.setProperty("mainButtonColor", 
-            buttonConfig != null ? buttonConfig.getMainButtonColor() : "#165DFF");
-        properties.setProperty("mianPopupContent", escapeJavaScript(
-            buttonConfig != null ? buttonConfig.getMianPopupContent() : ""));
-        // 主按钮 url/alertMessage 注入
-        properties.setProperty("mainButtonUrl", escapeJavaScript(
-            buttonConfig != null ? buttonConfig.getJumpUrl() : ""));
-        properties.setProperty("mainButtonAlertMessage", escapeJavaScript(
-            buttonConfig != null && buttonConfig.getMianPopupContent() != null ? buttonConfig.getMianPopupContent() : ""));
-        // 主按钮 callback 代码片段
+        properties.setProperty("mainButtonText", escapeJavaScript(buttonConfig == null ? "确认" : buttonConfig.getMainButtonText()));
+        properties.setProperty("mainButtonColor", buttonConfig == null ? "#165DFF" : buttonConfig.getMainButtonColor());
+        properties.setProperty("mianPopupContent", escapeJavaScript(buttonConfig == null ? "" : buttonConfig.getMianPopupContent()));
+        properties.setProperty("mainButtonUrl", escapeJavaScript(buttonConfig == null ? "" : buttonConfig.getJumpUrl()));
+        properties.setProperty("mainButtonAlertMessage", escapeJavaScript(buttonConfig != null && buttonConfig.getMianPopupContent() != null ? buttonConfig.getMianPopupContent() : ""));
         String mainButtonCallbackCode = buttonConfig != null && buttonConfig.getMainButtonCallback() != null
             ? buttonConfig.getMainButtonCallback().replaceAll("(?i)<script[^>]*>", "").replaceAll("(?i)</script>", "").trim()
             : "";
+
         // 副按钮
-        properties.setProperty("secondaryButtonText", escapeJavaScript(
-            buttonConfig != null ? buttonConfig.getSecondaryButtonText() : "关闭"));
-        properties.setProperty("secondaryButtonColor", 
-            buttonConfig != null ? buttonConfig.getSecondaryButtonColor() : "#86909C");
-        properties.setProperty("secondaryPopupContent", escapeJavaScript(
-            buttonConfig != null ? buttonConfig.getSecondaryPopupContent() : ""));
-        // 副按钮 url/alertMessage 注入
-        properties.setProperty("secondaryButtonUrl", escapeJavaScript(
-            buttonConfig != null ? buttonConfig.getSecondaryJumpUrl() : ""));
-        properties.setProperty("secondaryButtonAlertMessage", escapeJavaScript(
-            buttonConfig != null && buttonConfig.getSecondaryPopupContent() != null ? buttonConfig.getSecondaryPopupContent() : ""));
-        // 副按钮 callback 代码片段
+        properties.setProperty("secondaryButtonText", escapeJavaScript(buttonConfig == null ? "关闭" : buttonConfig.getSecondaryButtonText()));
+        properties.setProperty("secondaryButtonColor", buttonConfig == null ? "#86909C" : buttonConfig.getSecondaryButtonColor());
+        properties.setProperty("secondaryPopupContent", escapeJavaScript(buttonConfig == null ? "" : buttonConfig.getSecondaryPopupContent()));
+        properties.setProperty("secondaryButtonUrl", escapeJavaScript(buttonConfig == null ? "" : buttonConfig.getSecondaryJumpUrl()));
+        properties.setProperty("secondaryButtonAlertMessage", escapeJavaScript(buttonConfig != null && buttonConfig.getSecondaryPopupContent() != null ? buttonConfig.getSecondaryPopupContent() : ""));
         String secondaryButtonCallbackCode = buttonConfig != null && buttonConfig.getSecondaryButtonCallback() != null
             ? buttonConfig.getSecondaryButtonCallback().replaceAll("(?i)<script[^>]*>", "").replaceAll("(?i)</script>", "").trim()
             : "";
 
         // 主按钮 callbackFunction 动态赋值
-        String mainCallbackFunction = "null";
+        var mainCallbackFunction = "null";
         if (buttonConfig != null && buttonConfig.getMainButtonCallbackOption() != null) {
             mainCallbackFunction = switch (buttonConfig.getMainButtonCallbackOption()) {
                 case "jump" -> "LikccNotification.openNewWindow";
                 case "confirmJump" -> "LikccNotification.openNewWindowWithAlert";
-                case "customContent" ->buttonConfig.getMianCallback();
+                case "customContent" -> buttonConfig.getMianCallback();
                 default -> null;
             };
         }
         // 副按钮 callbackFunction 动态赋值
-        String secondaryCallbackFunction = "null";
+        var secondaryCallbackFunction = "null";
         if (buttonConfig != null && buttonConfig.getSecondaryButtonCallbackOption() != null) {
             secondaryCallbackFunction = switch (buttonConfig.getSecondaryButtonCallbackOption()) {
-                case "jump" -> "openNewWindow";
-                case "confirmJump" -> "openNewWindowWithAlert";
+                case "jump" -> "LikccNotification.openNewWindow";
+                case "confirmJump" -> "LikccNotification.openNewWindowWithAlert";
                 case "customContent" -> buttonConfig.getSecondaryCallback();
                 default -> null;
             };
         }
 
         // 生成最终 JS
-        String script = """
+        var script = """
             <script>
             %s
             %s
@@ -185,7 +173,8 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
                         autoClose: ${autoClose},
                         closeOnClickOutside: ${closeOnClickOutside},
                         showOnLoad: ${showOnLoad},
-                        popupInterval: ${popupInterval}
+                        popupInterval: ${popupInterval},
+                        confettiEnable: ${confettiEnable}
                     });
                 });
             </script>

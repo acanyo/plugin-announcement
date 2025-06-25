@@ -51,7 +51,8 @@
                 showOnLoad: true,     // 是否在页面加载时自动显示
                 autoClose: 0,         // 自动关闭时间(秒)，0表示不自动关闭
                 closeOnClickOutside: true,
-                popupInterval: 0      // 新增：弹窗弹出间隔（小时），0为不限制
+                popupInterval: 0,     // 新增：弹窗弹出间隔（小时），0为不限制
+                confettiEnable: true  // 新增：是否启用 confetti 爆炸效果
             };
             // 合并用户配置
             if (options) {
@@ -117,7 +118,7 @@
                     if (!this.checkUrlPattern()) {
                         return;
                     }
-                    
+
                     // 确保document.body存在
                     if (!document.body) {
                         // 如果body不存在，等待DOM加载完成
@@ -131,20 +132,20 @@
                             return;
                         }
                     }
-                    
+
                     // 创建DOM元素
                     this.createElement();
-                    
+
                     // 添加到文档
                     document.body.appendChild(this.element);
-                    
+
                     // 如果配置为页面加载时显示
                     if (config.showOnLoad) {
                         setTimeout(() => {
                             this.open();
                         }, 100);
                     }
-                    
+
                     // 添加到实例列表
                     LikccNotification.instances.push(this);
                 },
@@ -161,9 +162,9 @@
                     // 检查是否匹配任何路径模式
                     return config.urlPatterns.some(pattern => {
                         let regexStr = pattern
-                            .replace(/\//g, '\\/')
-                            .replace(/\*\*/g, '.*')
-                            .replace(/\*/g, '[^/]*');
+                                .replace(/\//g, '\\/')
+                                .replace(/\*\*/g, '.*')
+                                .replace(/\*/g, '[^/]*');
                         if (pattern.endsWith('/**')) {
                             regexStr = '^' + regexStr.replace(/\\\/\.\*\*$/, '\\/.*') + '$';
                         } else {
@@ -273,6 +274,16 @@
                     setTimeout(() => {
                         this.element.classList.add('likcc-notification-container--active');
                     }, 10);
+
+                    // confetti 爆炸效果
+                    if (config.confettiEnable && typeof window.confetti === 'function') {
+                        window.confetti({
+                            particleCount: 100,
+                            spread: 70,
+                            origin: { y: 0.3 },
+                            zIndex: 9999
+                        });
+                    }
 
                     this.isOpen = true;
 
