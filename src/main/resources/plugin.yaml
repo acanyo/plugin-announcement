@@ -10,15 +10,15 @@ spec:
   requires: ">=2.21.0"
   author:
     name: Handsome
-    website: https://github.com/Handsome
+    website: https://www.lik.cc
   logo: logo.svg
-  homepage: https://github.com/Handsome/announcement#readme
-  repo: https://github.com/Handsome/announcement
-  issues: https://github.com/Handsome/announcement/issues
+  homepage: https://github.com/acanyo/plugin-announcement#readme
+  repo: https://github.com/acanyo/plugin-announcement
+  issues: https://github.com/acanyo/plugin-announcement/issues
   displayName: "公告插件"
   description: "为你的Halo2模板增加一个弹窗公告功能"
   settingName: plugin-announcement-settings
   configMapName: plugin-announcement-configMap
   license:
     - name: "GPL-3.0"
-      url: "https://github.com/Handsome/announcement/blob/main/LICENSE"
+      url: "https://github.com/acanyo/plugin-announcement/blob/main/LICENSE"
