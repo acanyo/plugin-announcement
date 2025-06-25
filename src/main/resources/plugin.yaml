@@ -11,7 +11,7 @@ spec:
   author:
     name: Handsome
     website: https://github.com/Handsome
-  logo: logo.png
+  logo: logo.svg
   homepage: https://github.com/Handsome/announcement#readme
   repo: https://github.com/Handsome/announcement
   issues: https://github.com/Handsome/announcement/issues
