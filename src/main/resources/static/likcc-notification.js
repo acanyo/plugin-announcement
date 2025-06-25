@@ -50,7 +50,8 @@
                 urlPatterns: [],      // 支持多个路径模式的数组
                 showOnLoad: true,     // 是否在页面加载时自动显示
                 autoClose: 0,         // 自动关闭时间(秒)，0表示不自动关闭
-                closeOnClickOutside: true
+                closeOnClickOutside: true,
+                popupInterval: 0      // 新增：弹窗弹出间隔（小时），0为不限制
             };
             // 合并用户配置
             if (options) {
@@ -62,6 +63,18 @@
 
                 if (options.secondaryButton) {
                     Object.assign(config.secondaryButton, options.secondaryButton);
+                }
+            }
+
+            // 弹窗唯一 key，可用 title 或自定义 id
+            const popupKey = 'likcc-notification-' + (config.title ? config.title : 'default');
+            // 检查弹出间隔
+            if (config.popupInterval && Number(config.popupInterval) > 0) {
+                const lastTime = localStorage.getItem(popupKey + '-lastTime');
+                const now = Date.now();
+                if (lastTime && now - Number(lastTime) < Number(config.popupInterval) * 3600 * 1000) {
+                    // 未到间隔时间，不弹出
+                    return null;
                 }
             }
 
@@ -268,6 +281,12 @@
                         setTimeout(() => {
                             this.close();
                         }, config.autoClose * 1000);
+                    }
+
+                    // 记录弹出时间
+                    if (config.popupInterval && Number(config.popupInterval) > 0) {
+                        const popupKey = 'likcc-notification-' + (config.title ? config.title : 'default');
+                        localStorage.setItem(popupKey + '-lastTime', Date.now().toString());
                     }
                 },
 

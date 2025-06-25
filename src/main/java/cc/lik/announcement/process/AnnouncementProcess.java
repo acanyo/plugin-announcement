@@ -99,6 +99,7 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
         properties.setProperty("autoClose", String.valueOf(basicConfig.getAutoClose()));
         properties.setProperty("closeOnClickOutside", String.valueOf(basicConfig.isCloseOnClickOutside()));
         properties.setProperty("showOnLoad", String.valueOf(basicConfig.isShowOnLoad()));
+        properties.setProperty("popupInterval", String.valueOf(basicConfig.getPopupInterval()));
 
         // 主按钮
         properties.setProperty("mainButtonText", escapeJavaScript(
@@ -183,7 +184,8 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
                         },
                         autoClose: ${autoClose},
                         closeOnClickOutside: ${closeOnClickOutside},
-                        showOnLoad: ${showOnLoad}
+                        showOnLoad: ${showOnLoad},
+                        popupInterval: ${popupInterval}
                     });
                 });
             </script>

@@ -106,6 +106,15 @@ spec:
           label: 点击外部关闭
           value: true
           help: 是否允许点击弹窗外部关闭通知
+        - $formkit: number
+          if: $get(showOnLoad).value === true
+          name: popupInterval
+          key: popupInterval
+          id: popupInterval
+          label: 弹窗弹出间隔（小时）
+          placeholder: 0 表示不限制
+          value: 0
+          help: 用户首次进入弹窗后，间隔多少小时再次弹出，为0或空表示不限制
     - group: button
       label: 按钮设置
       formSchema:

@@ -23,6 +23,7 @@ public interface SettingConfigGetter {
         private String urlPatterns; // 路径匹配规则，多行文本
         private int autoClose; // 自动关闭时间（秒），0表示不自动关闭
         private boolean closeOnClickOutside; // 点击外部关闭
+        private int popupInterval; // 弹窗弹出间隔（小时），0 表示不限制
     }
 
     @Data
