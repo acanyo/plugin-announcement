@@ -148,7 +148,7 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
             <script>
             %s
             %s
-                document.addEventListener('DOMContentLoaded', () => {
+                function showLikccNotification() {
                     LikccNotification.create({
                         title: '${title}',
                         content: `${content}`,
@@ -176,7 +176,9 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
                         popupInterval: ${popupInterval},
                         confettiEnable: ${confettiEnable}
                     });
-                });
+                }
+                document.addEventListener('DOMContentLoaded', showLikccNotification, { once: true });
+                document.addEventListener('pjax:success', showLikccNotification);
             </script>
             """.formatted(mainButtonCallbackCode, secondaryButtonCallbackCode, mainCallbackFunction, secondaryCallbackFunction);
         return PROPERTY_PLACEHOLDER_HELPER.replacePlaceholders(script, properties);
