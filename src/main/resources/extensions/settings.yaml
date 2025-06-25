@@ -82,64 +82,6 @@ spec:
               value: right-top
           validation: required
           help: 选择弹窗在页面上的显示位置
-        - $formkit: text
-          if: $get(showOnLoad).value === true
-          name: mainButtonText
-          key: mainButtonText
-          id: mainButtonText
-          label: 主按钮文字
-          placeholder: 请输入主按钮文字
-          validation: required
-          value: 确认
-          help: 主按钮显示的文字
-        - $formkit: color
-          if: $get(showOnLoad).value === true
-          name: mainButtonColor
-          key: mainButtonColor
-          id: mainButtonColor
-          label: 主按钮颜色
-          validation: required
-          value: "#165DFF"
-          help: 主按钮的颜色
-        - $formkit: code
-          if: $get(showOnLoad).value === true
-          name: mainButtonCallback
-          key: mainButtonCallback
-          id: mainButtonCallback
-          label: 主按钮回调事件
-          value: "window.location.href = 'https://www.lik.cc';"
-          language: html
-          height: 200px
-          help: 主按钮回调事件，不填写的话使用默认关闭，仅支持 js 语法。
-        - $formkit: text
-          if: $get(showOnLoad).value === true
-          name: secondaryButtonText
-          key: secondaryButtonText
-          id: secondaryButtonText
-          label: 副按钮文字
-          placeholder: 请输入副按钮文字
-          validation: required
-          value: 关闭
-          help: 副按钮显示的文字
-        - $formkit: color
-          if: $get(showOnLoad).value === true
-          name: secondaryButtonColor
-          key: secondaryButtonColor
-          id: secondaryButtonColor
-          label: 副按钮颜色
-          validation: required
-          value: "#86909C"
-          help: 副按钮的颜色
-        - $formkit: code
-          if: $get(showOnLoad).value === true
-          name: secondaryButtonCallback
-          key: secondaryButtonCallback
-          id: secondaryButtonCallback
-          label: 副按钮回调事件
-          value: ""
-          language: html
-          height: 200px
-          help: 主按钮回调事件，不填写的话使用默认关闭，仅支持 js 语法。
         - $formkit: textarea
           if: $get(showOnLoad).value === true
           name: urlPatterns
@@ -164,3 +106,150 @@ spec:
           label: 点击外部关闭
           value: true
           help: 是否允许点击弹窗外部关闭通知
+    - group: button
+      label: 按钮设置
+      formSchema:
+        - $formkit: text
+          name: mainButtonText
+          key: mainButtonText
+          id: mainButtonText
+          label: 主按钮文字
+          placeholder: 请输入主按钮文字
+          validation: required
+          value: 确认
+          help: 主按钮显示的文字
+        - $formkit: color
+          name: mainButtonColor
+          key: mainButtonColor
+          id: mainButtonColor
+          label: 主按钮颜色
+          validation: required
+          value: "#165DFF"
+          help: 主按钮的颜色
+        - $formkit: select
+          name: mainButtonCallbackOption
+          key: mainButtonCallbackOption
+          id: mainButtonCallbackOption
+          label: 主按钮事件
+          placeholder: 请选择主按钮事件
+          options:
+            - label: 跳转
+              value: jump
+            - label: 确认跳转
+              value: confirmJump
+            - label: 关闭公告
+              value: closeNotice
+            - label: 自定义内容
+              value: customContent
+        - $formkit: text
+          if: $get(mainButtonCallbackOption).value === "jump" ||
+            $get(mainButtonCallbackOption).value === "confirmJump"
+          name: jumpUrl
+          key: jumpUrl
+          id: jumpUrl
+          label: 跳转Url
+          placeholder: 请输入跳转Url
+          validation: required
+          value: "https://www.lik.cc"
+          help: 用于点击主按钮时跳转的链接地址
+        - $formkit: text
+          if: $get(mainButtonCallbackOption).value === "confirmJump"
+          name: mianPopupContent
+          key: mianPopupContent
+          id: mianPopupContent
+          label: 主按钮自定义弹窗内容
+          placeholder: 请输入主按钮自定义弹窗内容
+          validation: required
+          value: "https://www.lik.cc"
+          help: 用于主按钮自定义弹窗内容
+        - $formkit: text
+          if: $get(mainButtonCallbackOption).value === "customContent"
+          name: mianCallback
+          key: mianCallback
+          id: mianCallback
+          label: 主按钮回调事件
+          validation: required
+          value: ""
+          help: 自定义主按钮回调事件下写的fun函数
+        - $formkit: code
+          if: $get(mainButtonCallbackOption).value === "customContent"
+          name: mainButtonCallback
+          key: mainButtonCallback
+          id: mainButtonCallback
+          label: 自定义主按钮回调事件
+          value: "<script></script>"
+          language: html
+          height: 200px
+          help: 自定义主按钮回调事件，仅支持 js 语法。
+        - $formkit: text
+          name: secondaryButtonText
+          key: secondaryButtonText
+          id: secondaryButtonText
+          label: 副按钮文字
+          placeholder: 请输入副按钮文字
+          validation: required
+          value: 关闭
+          help: 副按钮显示的文字
+        - $formkit: color
+          name: secondaryButtonColor
+          key: secondaryButtonColor
+          id: secondaryButtonColor
+          label: 副按钮颜色
+          validation: required
+          value: "#86909C"
+          help: 副按钮的颜色
+        - $formkit: select
+          name: secondaryButtonCallbackOption
+          key: secondaryButtonCallbackOption
+          id: secondaryButtonCallbackOption
+          label: 副按钮事件
+          placeholder: 请选择副按钮事件
+          options:
+            - label: 跳转
+              value: jump
+            - label: 确认跳转
+              value: confirmJump
+            - label: 关闭公告
+              value: closeNotice
+            - label: 自定义内容
+              value: customContent
+        - $formkit: text
+          if: $get(secondaryButtonCallbackOption).value === "jump" ||
+            $get(secondaryButtonCallbackOption).value === "confirmJump"
+          name: secondaryJumpUrl
+          key: secondaryJumpUrl
+          id: secondaryJumpUrl
+          label: 副按钮跳转Url
+          placeholder: 请输入副按钮跳转Url
+          validation: required
+          value: "https://www.lik.cc"
+          help: 用于点击副按钮时跳转的链接地址
+        - $formkit: text
+          if: $get(secondaryButtonCallbackOption).value === "confirmJump"
+          name: secondaryPopupContent
+          key: secondaryPopupContent
+          id: secondaryPopupContent
+          label: 副按钮自定义弹窗内容
+          placeholder: 请输入副按钮自定义弹窗内容
+          validation: required
+          value: "https://www.lik.cc"
+          help: 用于副按钮自定义弹窗内容
+        - $formkit: text
+          if: $get(secondaryButtonCallbackOption).value === "customContent"
+          name: secondaryCallback
+          key: secondaryCallback
+          id: secondaryCallback
+          label: 副按钮回调事件
+          validation: required
+          value: ""
+          help: 自定义副按钮回调事件下写的fun函数
+        - $formkit: code
+          if: $get(secondaryButtonCallbackOption).value === "customContent"
+          name: secondaryButtonCallback
+          key: secondaryButtonCallback
+          id: secondaryButtonCallback
+          label: 副按钮回调事件
+          value: "<script></script>"
+          language: html
+          height: 200px
+          help: 主按钮回调事件，不填写的话使用默认关闭，仅支持 js 语法。
