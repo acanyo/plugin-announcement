@@ -11,8 +11,7 @@ jobs:
     permissions:
       contents: write
     with:
-
-      node-version: 22
       pnpm-version: 9
+      node-version: 22
       java-version: 21
       app-id: app-2zcenro1
