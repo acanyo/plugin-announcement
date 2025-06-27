@@ -4,6 +4,7 @@ import cc.lik.announcement.service.SettingConfigGetter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -44,12 +45,15 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
     @NotNull
     private Mono<Void> insertJsAndCss(IModel iModel, IModelFactory modelFactory) {
         return jsConfigTemplate()
-            .flatMap(jsConfig -> {
+            .flatMap(result -> {
+                // 从结果中获取CSS地址和JS配置
+                String cssUrl = (String) result.get("cssUrl");
+                String jsConfig = (String) result.get("jsConfig");
+                
                 // 生成 CSS 和 JS 标签
-                String cssContent = String.format("<link rel=\"stylesheet\" href=\"%s\" />", CSS_URL);
+                String cssContent = String.format("<link rel=\"stylesheet\" href=\"%s\" />", cssUrl);
                 String scriptTag = String.format("<script src=\"%s\"></script>", SCRIPT_URL);
                 String confettiTag = String.format("<script src=\"%s\"></script>", CONFETTI_URL);
-
                 // 拼接完整的 HTML 内容
                 String fullScript = cssContent + "\n" + scriptTag + "\n" + jsConfig+ "\n" + confettiTag;
                 iModel.add(modelFactory.createText(fullScript));
@@ -57,7 +61,7 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
             });
     }
 
-    public Mono<String> jsConfigTemplate() {
+    public Mono<Map<String, String>> jsConfigTemplate() {
         return Mono.zip(
                 settingConfigGetter.getBasicConfig().switchIfEmpty(Mono.empty()),
                 settingConfigGetter.getButtonConfig().switchIfEmpty(Mono.empty())
@@ -66,9 +70,9 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
                 SettingConfigGetter.BasicConfig basicConfig = tuple.getT1();
                 SettingConfigGetter.ButtonConfig buttonConfig = tuple.getT2();
                 
-                // 如果没有基本配置或未启用，返回空字符串
+                // 如果没有基本配置或未启用，返回空结果
                 if (!basicConfig.isShowOnLoad()) {
-                    return Mono.just("");
+                    return Mono.just(Map.of("jsConfig", "", "cssUrl", CSS_URL));
                 }
                 
                 // 处理URL模式
@@ -79,9 +83,17 @@ public class AnnouncementProcess implements TemplateHeadProcessor {
                         .collect(Collectors.toList()))
                     .orElseGet(ArrayList::new);
                 
-                return Mono.just(buildScriptContent(basicConfig, buttonConfig));
+                // 获取CSS地址，如果设置中没有则使用默认值
+                String cssUrl = Optional.ofNullable(basicConfig.getAnnouncementStyle())
+                    .filter(style -> !style.trim().isEmpty())
+                    .orElse(CSS_URL);
+                
+                return Mono.just(Map.of(
+                    "jsConfig", buildScriptContent(basicConfig, buttonConfig),
+                    "cssUrl", cssUrl
+                ));
             })
-            .switchIfEmpty(Mono.just("")); // 如果zip操作失败，返回空字符串
+            .switchIfEmpty(Mono.just(Map.of("jsConfig", "", "cssUrl", CSS_URL))); // 如果zip操作失败，返回空结果
     }
 
     private String buildScriptContent(SettingConfigGetter.BasicConfig basicConfig, SettingConfigGetter.ButtonConfig buttonConfig) {

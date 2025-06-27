@@ -43,6 +43,14 @@ spec:
           key: showOnLoad
           value: true
           help: "是否在页面加载时自动显示、关闭后将不会主动弹出"
+        - $formkit: attachment
+          if: $get(showOnLoad).value === true
+          label: 公告样式css
+          name: announcementStyle
+          id: announcementStyle
+          key: announcementStyle
+          value: "/plugins/announcement/assets/static/likcc-notification.css"
+          help: "样式css地址，默认使用插件内置样式"
         - $formkit: text
           if: $get(showOnLoad).value === true
           name: title

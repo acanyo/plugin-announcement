@@ -17,7 +17,8 @@ public interface SettingConfigGetter {
         // 内容配置
         private String title;
         private String content;
-        
+        private String announcementStyle;
+
         // 位置和显示配置
         private String position; // center, left-bottom, right-bottom, left-top, right-top
         private String urlPatterns; // 路径匹配规则，多行文本
