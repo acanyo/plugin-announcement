@@ -1,34 +1,38 @@
 (function() {
-    // 默认跳转函数 - 普通新窗口跳转
-    function openNewWindow(url) {
-        if (url) {
-            window.open(url, '_blank', 'noopener,noreferrer');
-        } else {
-            console.warn('openNewWindow: URL参数不能为空');
-        }
-    }
-
-    // 默认跳转函数 - 带提醒的新窗口跳转
-    function openNewWindowWithAlert(url, alertMessage) {
-        if (url) {
-            // 显示提醒信息
-            if (alertMessage) {
-                alert(alertMessage);
-            }
-            // 打开新窗口
-            window.open(url, '_blank', 'noopener,noreferrer');
-        } else {
-            console.warn('openNewWindowWithAlert: URL参数不能为空');
-        }
-    }
-
     // 定义插件对象
     window.LikccNotification = {
         instances: [],
 
-        // 默认跳转函数
-        openNewWindow: openNewWindow,
-        openNewWindowWithAlert: openNewWindowWithAlert,
+        // 默认跳转函数 - 普通新窗口跳转
+        openNewWindow: function(url) {
+            if (!url) {
+                console.error('openNewWindow: URL参数不能为空');
+                return;
+            }
+            try {
+                window.open(url, '_blank', 'noopener,noreferrer');
+            } catch (error) {
+                console.error('openNewWindow: 打开新窗口时出错', error);
+            }
+        },
+
+        // 默认跳转函数 - 带提醒的新窗口跳转
+        openNewWindowWithAlert: function(url, alertMessage) {
+            if (!url) {
+                console.error('openNewWindowWithAlert: URL参数不能为空');
+                return;
+            }
+            try {
+                // 显示提醒信息
+                if (alertMessage) {
+                    alert(alertMessage);
+                }
+                // 打开新窗口
+                window.open(url, '_blank', 'noopener,noreferrer');
+            } catch (error) {
+                console.error('openNewWindowWithAlert: 打开新窗口时出错', error);
+            }
+        },
 
         // 创建弹窗
         create: function(options) {
@@ -71,16 +75,15 @@
             const popupKey = 'likcc-notification-' + (config.title ? config.title : 'default');
             // 检查弹出间隔
             if (config.popupInterval && Number(config.popupInterval) > 0) {
-                const lastTime = localStorage.getItem(popupKey + '-lastTime');
-                const now = Date.now();
-                if (lastTime) {
-                    console.log('Last popup time:', new Date(Number(lastTime)));
-                    console.log('Next popup time:', new Date(Number(lastTime) + Number(config.popupInterval) * 3600 * 1000));
-                }
-                if (lastTime && now - Number(lastTime) < Number(config.popupInterval) * 3600 * 1000) {
-                    console.log('Not time to show the popup yet.');
-                    // 未到间隔时间，不弹出
-                    return null;
+                try {
+                    const lastTime = localStorage.getItem(popupKey + '-lastTime');
+                    const now = Date.now();
+                    if (lastTime && now - Number(lastTime) < Number(config.popupInterval) * 3600 * 1000) {
+                        // 未到间隔时间，不弹出
+                        return null;
+                    }
+                } catch (error) {
+                    console.error('检查弹出间隔时出错', error);
                 }
             }
 
@@ -121,17 +124,14 @@
                 init: function() {
                     // 检查URL匹配
                     if (!this.checkUrlPattern()) {
-                        console.log('Current URL does not match the configured patterns:', window.location.pathname);
                         return;
                     }
 
                     // 确保document.body存在
                     if (!document.body) {
-                        console.log('document.body is not available yet. Waiting for DOMContentLoaded...');
                         // 如果body不存在，等待DOM加载完成
                         if (document.readyState === 'loading') {
                             document.addEventListener('DOMContentLoaded', () => {
-                                console.log('DOMContentLoaded event fired. Initializing...');
                                 this.init();
                             });
                             return;
@@ -285,12 +285,16 @@
 
                     // confetti 爆炸效果
                     if (config.confettiEnable && typeof window.confetti === 'function') {
-                        window.confetti({
-                            particleCount: 100,
-                            spread: 70,
-                            origin: { y: 0.3 },
-                            zIndex: 9999
-                        });
+                        try {
+                            window.confetti({
+                                particleCount: 100,
+                                spread: 70,
+                                origin: { y: 0.3 },
+                                zIndex: 9999
+                            });
+                        } catch (error) {
+                            console.error('执行 confetti 效果时出错', error);
+                        }
                     }
 
                     this.isOpen = true;
@@ -304,8 +308,12 @@
 
                     // 记录弹出时间
                     if (config.popupInterval && Number(config.popupInterval) > 0) {
-                        const popupKey = 'likcc-notification-' + (config.title ? config.title : 'default');
-                        localStorage.setItem(popupKey + '-lastTime', Date.now().toString());
+                        try {
+                            const popupKey = 'likcc-notification-' + (config.title ? config.title : 'default');
+                            localStorage.setItem(popupKey + '-lastTime', Date.now().toString());
+                        } catch (error) {
+                            console.error('记录弹出时间时出错', error);
+                        }
                     }
                 },
 
