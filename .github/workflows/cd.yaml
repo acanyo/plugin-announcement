@@ -13,8 +13,7 @@ jobs:
     permissions:
       contents: write
     with:
-      node-version: "22"
-      pnpm-version: "9"
       app-id: app-2zcenro1
-      skip-node-setup: false
-      ui-path: "."
+      node-version: 22
+      pnpm-version: 9
+      java-version: 21
