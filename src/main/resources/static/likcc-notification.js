@@ -73,7 +73,12 @@
             if (config.popupInterval && Number(config.popupInterval) > 0) {
                 const lastTime = localStorage.getItem(popupKey + '-lastTime');
                 const now = Date.now();
+                if (lastTime) {
+                    console.log('Last popup time:', new Date(Number(lastTime)));
+                    console.log('Next popup time:', new Date(Number(lastTime) + Number(config.popupInterval) * 3600 * 1000));
+                }
                 if (lastTime && now - Number(lastTime) < Number(config.popupInterval) * 3600 * 1000) {
+                    console.log('Not time to show the popup yet.');
                     // 未到间隔时间，不弹出
                     return null;
                 }
@@ -116,14 +121,17 @@
                 init: function() {
                     // 检查URL匹配
                     if (!this.checkUrlPattern()) {
+                        console.log('Current URL does not match the configured patterns:', window.location.pathname);
                         return;
                     }
 
                     // 确保document.body存在
                     if (!document.body) {
+                        console.log('document.body is not available yet. Waiting for DOMContentLoaded...');
                         // 如果body不存在，等待DOM加载完成
                         if (document.readyState === 'loading') {
                             document.addEventListener('DOMContentLoaded', () => {
+                                console.log('DOMContentLoaded event fired. Initializing...');
                                 this.init();
                             });
                             return;
