@@ -121,16 +121,8 @@
 
                     // 确保document.body存在
                     if (!document.body) {
-                        // 如果body不存在，等待DOM加载完成
-                        if (document.readyState === 'loading') {
-                            document.addEventListener('DOMContentLoaded', () => {
-                                this.init();
-                            });
-                            return;
-                        } else {
-                            console.error('document.body is not available');
-                            return;
-                        }
+                        console.error('document.body is not available');
+                        return;
                     }
 
                     // 创建DOM元素
@@ -153,26 +145,32 @@
                 // 检查URL匹配
                 checkUrlPattern: function() {
                     const currentPath = window.location.pathname;
+                    console.log('Current path:', currentPath);
 
                     // 如果没有设置任何路径模式，不显示弹窗
                     if (!config.urlPatterns || config.urlPatterns.length === 0) {
+                        console.log('No url patterns configured, not showing popup.');
                         return false;
                     }
 
                     // 检查是否匹配任何路径模式
-                    return config.urlPatterns.some(pattern => {
+                    const match = config.urlPatterns.some(pattern => {
                         let regexStr = pattern
-                                .replace(/\//g, '\\/')
-                                .replace(/\*\*/g, '.*')
-                                .replace(/\*/g, '[^/]*');
+                           .replace(/\//g, '\\/')
+                           .replace(/\*\*/g, '.*')
+                           .replace(/\*/g, '[^/]*');
                         if (pattern.endsWith('/**')) {
                             regexStr = '^' + regexStr.replace(/\\\/\.\*\*$/, '\\/.*') + '$';
                         } else {
                             regexStr = '^' + regexStr + '$';
                         }
                         const regex = new RegExp(regexStr);
-                        return regex.test(currentPath);
+                        const isMatch = regex.test(currentPath);
+                        console.log(`Pattern: ${pattern}, Regex: ${regexStr}, Match: ${isMatch}`);
+                        return isMatch;
                     });
+
+                    return match;
                 },
 
                 // 创建DOM元素
@@ -211,7 +209,7 @@
 
                     // 如果内容是HTML字符串
                     if (typeof config.content === 'string' &&
-                            (config.content.startsWith('<') || config.content.includes('</'))) {
+                        (config.content.startsWith('<') || config.content.includes('</'))) {
                         content.innerHTML = config.content;
                     } else {
                         content.textContent = config.content;
@@ -323,7 +321,7 @@
                     if (contentElement) {
                         // 如果内容是HTML字符串
                         if (typeof newContent === 'string' &&
-                                (newContent.startsWith('<') || newContent.includes('</'))) {
+                            (newContent.startsWith('<') || newContent.includes('</'))) {
                             contentElement.innerHTML = newContent;
                         } else {
                             contentElement.textContent = newContent;
@@ -345,8 +343,10 @@
                 }
             };
 
-            // 初始化实例
-            instance.init();
+            // 等待页面所有资源加载完成后初始化实例
+            window.onload = function() {
+                instance.init();
+            };
 
             return instance;
         },
@@ -371,4 +371,12 @@
             this.instances = [];
         }
     };
+
+    // PJAX 兼容性处理
+    document.addEventListener('pjax:success', function() {
+        const options = {
+            // 这里可以根据实际情况添加配置
+        };
+        window.LikccNotification.create(options);
+    });
 })();
