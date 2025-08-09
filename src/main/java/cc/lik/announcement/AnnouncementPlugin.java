@@ -1,8 +1,13 @@
 package cc.lik.announcement;
 
+import cc.lik.announcement.extension.Announcement;
 import org.springframework.stereotype.Component;
+import run.halo.app.extension.SchemeManager;
+import run.halo.app.extension.index.IndexSpec;
 import run.halo.app.plugin.BasePlugin;
 import run.halo.app.plugin.PluginContext;
+
+import static run.halo.app.extension.index.IndexAttributeFactory.simpleAttribute;
 
 /**
  * <p>Plugin main class to manage the lifecycle of the plugin.</p>
@@ -14,14 +19,55 @@ import run.halo.app.plugin.PluginContext;
  */
 @Component
 public class AnnouncementPlugin extends BasePlugin {
-
-    public AnnouncementPlugin(PluginContext pluginContext) {
+    private final SchemeManager schemeManager;
+    public AnnouncementPlugin(PluginContext pluginContext, SchemeManager schemeManager) {
         super(pluginContext);
+        this.schemeManager = schemeManager;
     }
 
     @Override
     public void start() {
-        System.out.println("插件启动成功！");
+        schemeManager.register(Announcement.class, indexSpecs -> {
+            indexSpecs.add(new IndexSpec()
+                .setName("announcementSpec.title")
+                .setIndexFunc(simpleAttribute(Announcement.class,
+                    selectedComment -> selectedComment.getAnnouncementSpec().getTitle())
+                ));
+            indexSpecs.add(new IndexSpec()
+                .setName("announcementSpec.permissions")
+                .setIndexFunc(simpleAttribute(Announcement.class, announcement -> {
+                    var permission = announcement.getAnnouncementSpec().getPermissions();
+                    return permission == null ? null : permission.name();
+                })));
+            indexSpecs.add(new IndexSpec()
+                .setName("announcementSpec.content")
+                .setIndexFunc(simpleAttribute(Announcement.class,
+                    selectedComment -> selectedComment.getAnnouncementSpec().getContent())
+                ));
+            indexSpecs.add(new IndexSpec()
+                .setName("announcementSpec.position")
+                .setIndexFunc(simpleAttribute(Announcement.class,
+                    selectedComment -> selectedComment.getAnnouncementSpec().getPosition())
+                ));
+            indexSpecs.add(new IndexSpec()
+                .setName("announcementSpec.autoClose")
+                .setIndexFunc(simpleAttribute(Announcement.class,
+                    selectedComment -> String.valueOf(
+                        selectedComment.getAnnouncementSpec().getAutoClose()))
+                ));
+            indexSpecs.add(new IndexSpec()
+                .setName("announcementSpec.closeOnClickOutside")
+                .setIndexFunc(simpleAttribute(Announcement.class,
+                    selectedComment -> String.valueOf(
+                        selectedComment.getAnnouncementSpec().getCloseOnClickOutside()))
+                ));
+            indexSpecs.add(new IndexSpec()
+                .setName("announcementSpec.confettiEnable")
+                .setIndexFunc(simpleAttribute(Announcement.class,
+                    selectedComment -> String.valueOf(
+                        selectedComment.getAnnouncementSpec().getConfettiEnable()))
+                ));
+        });
     }
 
     @Override
