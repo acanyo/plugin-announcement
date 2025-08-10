@@ -1,8 +1,30 @@
-import { definePlugin } from '@halo-dev/console-shared'
+import { definePlugin } from "@halo-dev/console-shared";
+import { markRaw } from "vue";
+import Announcements from "@/views/Announcements.vue";
+import IconNotificationLine from '~icons/ri/notification-line?width=1.2em&height=1.2em';
 
 export default definePlugin({
   components: {},
   routes: [
+    {
+      parentName: "ToolsRoot",
+      route: {
+        path: "/announcements",
+        name: "Announcements",
+        component: Announcements,
+        meta: {
+          title: "公告管理",
+          description: "管理网站公告，支持自定义弹窗内容、按钮行为、动画效果和智能弹出控制",
+          searchable: true,
+          permissions: ["plugin:announcement:manage"],
+          menu: {
+            name: "公告管理",
+            icon: markRaw(IconNotificationLine),
+            priority: 0,
+          },
+        },
+      },
+    },
   ],
   extensionPoints: {},
-})
+});
