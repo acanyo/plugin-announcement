@@ -81,6 +81,32 @@ const getPermissionState = (permission: string) => {
   }
 };
 
+const getPositionText = (position?: string) => {
+  switch (position) {
+    case 'center':
+      return '居中';
+    case 'left-bottom':
+      return '左下角';
+    case 'right-bottom':
+      return '右下角';
+    case 'left-top':
+      return '左上角';
+    case 'right-top':
+      return '右上角';
+    default:
+      return '未设置';
+  }
+};
+
+const getBehaviorSummary = (a: Announcement) => {
+  const s = a.announcementSpec;
+  const auto = s.autoClose && s.autoClose > 0 ? `${s.autoClose}s 自动关闭` : '不自动关闭';
+  const outside = s.closeOnClickOutside ? '可外部关闭' : '不可外部关闭';
+  const interval = s.popupInterval && s.popupInterval > 0 ? `${s.popupInterval}h 间隔` : '无间隔限制';
+  const confetti = s.confettiEnable ? '礼花开启' : '礼花关闭';
+  return `${auto} · ${outside} · ${interval} · ${confetti}`;
+};
+
 </script>
 <template>
   <VEntity :is-selected="isSelected">
@@ -92,8 +118,15 @@ const getPermissionState = (permission: string) => {
     <template #start>
       <VEntityField
         :title="announcement.announcementSpec.title"
-        :description="announcement.metadata.name"
       >
+        <template #description>
+          <div class="text-xs text-gray-500">
+            <span>弹出位置：{{ getPositionText(announcement.announcementSpec.position) }}</span>
+          </div>
+          <div class="text-xs text-gray-500 mt-0.5">
+            <span>{{ getBehaviorSummary(announcement) }}</span>
+          </div>
+        </template>
       </VEntityField>
     </template>
     <template #end>
