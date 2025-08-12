@@ -9,7 +9,7 @@ export default definePlugin({
     {
       parentName: "ToolsRoot",
       route: {
-        path: "/announcements",
+        path: "announcements",
         name: "Announcements",
         component: Announcements,
         meta: {
@@ -22,6 +22,20 @@ export default definePlugin({
             icon: markRaw(IconNotificationLine),
             priority: 0,
           },
+        },
+      },
+    },
+    {
+      parentName: "ToolsRoot",
+      route: {
+        path: "announcements/new",
+        name: "AnnouncementCreate",
+        component: () => import("@/views/AnnouncementEditor.vue"),
+        meta: {
+          title: "新建公告",
+          description: "创建新的公告",
+          searchable: false,
+          permissions: ["plugin:announcement:manage"],
         },
       },
     },

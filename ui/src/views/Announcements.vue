@@ -160,11 +160,25 @@ const handleDeleteInBatch = async () => {
   });
 };
 
+const goCreate = () => {
+  // 在 ToolsRoot 下相对跳转
+  const base = window.location.origin + window.location.pathname.replace(/\/?$/, "");
+  // 如果当前就是 /console/tools/announcements，则拼接 /new
+  if (base.endsWith("/announcements")) {
+    window.location.href = base + "/new";
+  } else {
+    window.location.href = "/console/tools/announcements/new";
+  }
+};
+
 </script>
 <template>
   <VPageHeader title="公告管理">
     <template #icon>
       <IconNotificationLine class="mr-2 self-center" />
+    </template>
+    <template #actions>
+      <VButton type="primary" @click="goCreate">新建公告</VButton>
     </template>
   </VPageHeader>
   <div class="m-0 md:m-4">
