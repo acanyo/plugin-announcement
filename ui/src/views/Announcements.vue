@@ -15,7 +15,7 @@ import {
 } from "@halo-dev/components";
 import {announcementApiClient} from "@/api";
 import AnnouncementListItem from "@/components/AnnouncementListItem.vue";
-import IconNotificationLine from '~icons/ri/notification-line?width=1.2em&height=1.2em';
+import IconAnnouncementMegaphone from '~icons/streamline-plump-color/announcement-megaphone?width=1.2em&height=1.2em';
 import type {Announcement, AnnouncementList} from "@/api/generated";
 
 const checkAll = ref(false);
@@ -175,7 +175,7 @@ const goCreate = () => {
 <template>
   <VPageHeader title="公告管理">
     <template #icon>
-      <IconNotificationLine class="mr-2 self-center" />
+      <IconAnnouncementMegaphone class="mr-2 self-center" />
     </template>
     <template #actions>
       <VButton type="primary" @click="goCreate">新建公告</VButton>

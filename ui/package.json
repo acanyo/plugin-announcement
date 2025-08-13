@@ -20,8 +20,8 @@
     "canvas-confetti": "^1.9.3",
     "dayjs": "^1.11.13",
     "vue": "^3.5.17",
-    "md-editor-v3": "^4.21.0",
-    "markdown-it": "^14.1.0"
+    "@wangeditor/editor": "^5.1.0",
+    "@wangeditor/editor-for-vue": "^5.1.0"
   },
   "devDependencies": {
     "@halo-dev/ui-plugin-bundler-kit": "^2.21.1",

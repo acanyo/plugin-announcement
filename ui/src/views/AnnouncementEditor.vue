@@ -1,27 +1,23 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { VPageHeader, VCard, VButton, Toast } from "@halo-dev/components";
-import { MdEditor } from "md-editor-v3";
-import "md-editor-v3/lib/style.css";
-import MarkdownIt from "markdown-it";
+import { ref, shallowRef, onBeforeUnmount } from "vue";
+import { VPageHeader, VCard, VButton, Toast} from "@halo-dev/components";
+import "@wangeditor/editor/dist/css/style.css";
+import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import { announcementV1alpha1Api } from "@/api";
 import type { Announcement } from "@/api/generated";
-
-const md = new MarkdownIt({ html: false, linkify: true, breaks: true });
+import IconAnnouncementMegaphone from '~icons/streamline-plump/announcement-megaphone?width=1.2em&height=1.2em';
 
 const title = ref("");
 const permissions = ref("everyone");
-const markdown = ref(`# 公告标题\n\n这里是你的公告内容，支持 **粗体**、_斜体_、列表、代码块等。\n\n- 支持 Markdown 语法\n- 支持链接与图片\n- 提交后将转换为 HTML 用于弹窗显示`);
 const position = ref("center");
 const autoClose = ref(0);
 const closeOnClickOutside = ref(true);
 const popupInterval = ref(0);
 const confettiEnable = ref(false);
 
-// Editor themes
-const theme = ref<'light' | 'dark'>("light");
-const previewTheme = ref<'default' | 'github' | 'vuepress' | 'smart-blue' | 'mk-cute' | 'cyanosis'>("github");
-const codeTheme = ref<'atom' | 'github' | 'kimbie' | 'monokai' | 'xcode' | 'dracula'>("github");
+// wangEditor state
+const editorRef = shallowRef();
+const html = ref("<p>这里是你的公告内容，支持<b>加粗</b>、<i>斜体</i>、图片、链接等富文本。</p>");
 
 function slugify(input: string): string {
   return input
@@ -39,13 +35,22 @@ const goBack = () => {
 
 const isSubmitting = ref(false);
 
+const handleCreated = (editor: any) => {
+  editorRef.value = editor;
+};
+
+onBeforeUnmount(() => {
+  const editor = editorRef.value;
+  if (editor == null) return;
+  editor.destroy();
+});
+
 const handleSubmit = async () => {
   if (!title.value.trim()) return Toast.warning("请输入标题");
-  if (!markdown.value.trim()) return Toast.warning("请输入内容（Markdown）");
+  if (!html.value.trim()) return Toast.warning("请输入公告内容");
 
   try {
     isSubmitting.value = true;
-    const html = md.render(markdown.value);
     const body: Announcement = {
       apiVersion: "announcement.lik.cc/v1alpha1",
       kind: "Announcement",
@@ -53,7 +58,7 @@ const handleSubmit = async () => {
       announcementSpec: {
         title: title.value,
         permissions: permissions.value as any,
-        content: html,
+        content: html.value,
         position: position.value,
         autoClose: Number(autoClose.value || 0),
         closeOnClickOutside: Boolean(closeOnClickOutside.value),
@@ -75,6 +80,9 @@ const handleSubmit = async () => {
 
 <template>
   <VPageHeader title="新建公告">
+    <template #icon>
+      <IconAnnouncementMegaphone class="mr-2 self-center" />
+    </template>
     <template #actions>
       <div class="header-actions">
         <VButton class="mr-2" @click="goBack">返回</VButton>
@@ -106,53 +114,22 @@ const handleSubmit = async () => {
 
           <div class="section">
             <div class="section-title">公告内容</div>
-            <p class="section-desc">支持 Markdown 语法，保存时会自动渲染为 HTML 用于弹窗显示。</p>
-            <MdEditor
-              v-model="markdown"
-              class="md-box"
-              language="zh-CN"
-              :theme="theme"
-              :preview-theme="previewTheme"
-              :code-theme="codeTheme"
-            />
+            <p class="section-desc">所见即所得，提交后将直接作为弹窗的 HTML 内容。</p>
+            <div class="wangeditor-box">
+              <Toolbar class="wangeditor-toolbar" :editor="editorRef" :defaultConfig="{ }" mode="default" />
+              <Editor
+                class="wangeditor-editor"
+                v-model="html"
+                :defaultConfig="{ placeholder: '请输入公告内容...' }"
+                mode="default"
+                @onCreated="handleCreated"
+              />
+            </div>
           </div>
         </div>
 
         <!-- 右侧：设置栏 -->
         <div class="aside">
-          <div class="side-card">
-            <div class="section-title">编辑器主题</div>
-            <div class="form-row">
-              <label class="field-label">主题（编辑器）</label>
-              <select v-model="theme" class="default-input">
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <label class="field-label">预览主题</label>
-              <select v-model="previewTheme" class="default-input">
-                <option value="default">Default</option>
-                <option value="github">GitHub</option>
-                <option value="vuepress">VuePress</option>
-                <option value="smart-blue">Smart Blue</option>
-                <option value="mk-cute">Mk Cute</option>
-                <option value="cyanosis">Cyanosis</option>
-              </select>
-            </div>
-            <div class="form-row">
-              <label class="field-label">代码主题</label>
-              <select v-model="codeTheme" class="default-input">
-                <option value="github">GitHub</option>
-                <option value="atom">Atom</option>
-                <option value="kimbie">Kimbie</option>
-                <option value="monokai">Monokai</option>
-                <option value="xcode">Xcode</option>
-                <option value="dracula">Dracula</option>
-              </select>
-            </div>
-          </div>
-
           <div class="side-card">
             <div class="section-title">显示设置</div>
             <div class="form-row">
@@ -217,10 +194,11 @@ const handleSubmit = async () => {
 .default-input { width: 100%; height: 36px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; background: #fff; }
 .default-input:focus { outline: none; border-color: #165dff; box-shadow: 0 0 0 3px rgba(22,93,255,0.12); }
 
-/***** Editor *****/
-.md-box { height: 560px; margin-top: 8px; }
-:deep(.md-editor) { border: 1px solid #e5e7eb; border-radius: 8px; }
+/***** wangEditor *****/
+.wangeditor-box { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+.wangeditor-toolbar { border-bottom: 1px solid #e5e7eb; }
+.wangeditor-editor { height: 70vh; min-height: 420px; }
 
 /***** Header actions *****/
 .header-actions { display:flex; align-items:center; }
-</style> 
+</style>

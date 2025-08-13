@@ -1,7 +1,7 @@
 import { definePlugin } from "@halo-dev/console-shared";
 import { markRaw } from "vue";
 import Announcements from "@/views/Announcements.vue";
-import IconNotificationLine from '~icons/ri/notification-line?width=1.2em&height=1.2em';
+import IconAnnouncementMegaphone from '~icons/streamline-plump-color/announcement-megaphone?width=1.2em&height=1.2em';
 
 export default definePlugin({
   components: {},
@@ -19,7 +19,7 @@ export default definePlugin({
           permissions: ["plugin:announcement:manage"],
           menu: {
             name: "公告管理",
-            icon: markRaw(IconNotificationLine),
+            icon: markRaw(IconAnnouncementMegaphone),
             priority: 0,
           },
         },
