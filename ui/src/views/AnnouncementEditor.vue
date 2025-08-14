@@ -14,7 +14,6 @@ const autoClose = ref(0);
 const closeOnClickOutside = ref(true);
 const popupInterval = ref(0);
 const confettiEnable = ref(false);
-
 // wangEditor state
 const editorRef = shallowRef();
 const html = ref("<p>这里是你的公告内容，支持<b>加粗</b>、<i>斜体</i>、图片、链接等富文本。</p>");

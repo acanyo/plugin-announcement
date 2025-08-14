@@ -67,9 +67,9 @@ import {
   watch,
   type ComputedRef,
 } from "vue";
-import { useAttachmentSelect } from "@/composables/use-attachment";
+import { useAttachmentSelect } from "./composables/use-attachment";
 import { getContents } from "./utils/attachment";
-import {useExtension} from "@/components/editor/composables/use-extension.ts";
+import {useExtension} from "./composables/use-extension";
 import {
   UiExtensionAudio,
   UiExtensionImage,
@@ -78,8 +78,6 @@ import {
 } from "./extensions";
 import type {Attachment} from "@halo-dev/api-client";
 import type {AxiosRequestConfig} from "axios";
-import ContentHiddenExtension from "@/editor/content-hidden.ts";
-import ContentSeparatorExtension from "@/editor/separator.ts";
 
 
 

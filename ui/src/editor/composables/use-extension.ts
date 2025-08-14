@@ -1,5 +1,5 @@
 // FROM https://github.com/halo-dev/halo/blob/733679d5ac98b9e93c373244e2b05d7d79000409/ui/src/components/editor/composables/use-extension.ts
-import { randomUUID } from "@/utils/id.ts";
+import { randomUUID } from "../utils/id";
 import {
   getExtensionField,
   type AnyConfig,

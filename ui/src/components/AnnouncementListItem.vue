@@ -9,7 +9,7 @@ import {
   Toast,
 } from "@halo-dev/components";
 import {type Announcement} from "@/api/generated";
-import {announcementApiClient} from "@/api";
+import {announcementApiClient, announcementV1alpha1Api} from "@/api";
 import { nextTick } from "vue";
 
 const props = withDefaults(
@@ -33,9 +33,7 @@ const handleDelete = async () => {
     cancelText: "取消",
     onConfirm: async () => {
       try {
-        // 由于API中没有deleteAnnouncement方法，这里暂时注释掉
-        // await announcementApiClient.deleteAnnouncement(props.announcement.metadata.name as string);
-        Toast.success("此功能需要实现删除API");
+        await announcementV1alpha1Api.deleteAnnouncement({ name: props.announcement.metadata.name as string });
         Toast.success("删除成功");
       } catch (error) {
         console.error("Failed to delete announcement", error);

@@ -13,7 +13,7 @@ import {
   Toast,
   VEntityContainer
 } from "@halo-dev/components";
-import {announcementApiClient} from "@/api";
+import {announcementApiClient, announcementV1alpha1Api} from "@/api";
 import AnnouncementListItem from "@/components/AnnouncementListItem.vue";
 import IconAnnouncementMegaphone from '~icons/streamline-plump-color/announcement-megaphone?width=1.2em&height=1.2em';
 import type {Announcement, AnnouncementList} from "@/api/generated";
@@ -76,10 +76,17 @@ const {
       keyword: keyword.value,
       announcementSpecPermissions: selectedPermissions.value
     });
-
     total.value = data.total;
     return data;
   },
+  refetchInterval: (query) => {
+    const data = (query as any).state?.data as AnnouncementList | undefined;
+    if (!data) return false;
+    const hasDeletingAnnouncement = data.items?.some(
+      (ann: Announcement) => (ann as any)?.metadata?.deletionTimestamp,
+    );
+    return hasDeletingAnnouncement ? 1000 : false;
+  }
 });
 
 // Selection
@@ -119,17 +126,13 @@ const handleDeleteInBatch = async () => {
     cancelText: '取消',
     onConfirm: async () => {
       try {
-        // 由于API中没有deleteAnnouncement方法，这里暂时注释掉
-        // const promises = selectedAnnouncementNames.value.map((name) => {
-        //   return announcementApiClient.deleteAnnouncement(name);
-        // });
-        // await Promise.all(promises);
-        Toast.success('此功能需要实现删除API');
+        const promises = selectedAnnouncementNames.value.map((name) => {
+          return announcementV1alpha1Api.deleteAnnouncement({ name });
+        });
+        await Promise.all(promises);
         selectedAnnouncementNames.value = [];
-
         Toast.success('删除成功');
       } catch (e) {
-        console.error("Failed to delete announcement", e);
       } finally {
         refetch();
       }
@@ -138,9 +141,7 @@ const handleDeleteInBatch = async () => {
 };
 
 const goCreate = () => {
-  // 在 ToolsRoot 下相对跳转
   const base = window.location.origin + window.location.pathname.replace(/\/?$/, "");
-  // 如果当前就是 /console/tools/announcements，则拼接 /new
   if (base.endsWith("/announcements")) {
     window.location.href = base + "/new";
   } else {
