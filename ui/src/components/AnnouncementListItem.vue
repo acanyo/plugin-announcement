@@ -73,7 +73,7 @@ const getPermissionState = (permission: string) => {
     case 'nonLoggedInUsers':
       return 'warning';
     case 'everyone':
-      return 'warning'; // 修改为 warning，因为 info 不是有效的状态类型
+      return 'success';
     case 'notShown':
       return 'default';
     default:
@@ -121,7 +121,7 @@ const getBehaviorSummary = (a: Announcement) => {
       >
         <template #description>
           <div class="text-xs text-gray-500">
-            <span>弹出位置：{{ getPositionText(announcement.announcementSpec.position) }}</span>
+            <span>弹出设置：{{ getPositionText(announcement.announcementSpec.position) }}</span>
           </div>
           <div class="text-xs text-gray-500 mt-0.5">
             <span>{{ getBehaviorSummary(announcement) }}</span>

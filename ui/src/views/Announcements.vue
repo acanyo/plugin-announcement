@@ -17,16 +17,18 @@ import {announcementApiClient} from "@/api";
 import AnnouncementListItem from "@/components/AnnouncementListItem.vue";
 import IconAnnouncementMegaphone from '~icons/streamline-plump-color/announcement-megaphone?width=1.2em&height=1.2em';
 import type {Announcement, AnnouncementList} from "@/api/generated";
+import { useRouteQuery } from "@vueuse/router";
+import { useQuery } from "@tanstack/vue-query";
 
 const checkAll = ref(false);
 const selectedAnnouncement = ref<Announcement>();
 const selectedAnnouncementNames = ref<string[]>([]);
 
-const page = ref(1);
-const size = ref(20);
-const selectedSort = ref(undefined);
-const selectedPermissions = ref(undefined);
-const keyword = ref("");
+const keyword = useRouteQuery<string>("keyword", "");
+const page = useRouteQuery<number>("page", 1, { transform: Number });
+const size = useRouteQuery<number>("size", 20, { transform: Number });
+const selectedSort = useRouteQuery<string | undefined>("sort");
+const selectedPermissions = useRouteQuery<string | undefined>("permissions");
 const total = ref(0);
 
 watch(
@@ -52,24 +54,21 @@ const hasFilters = computed(() => {
   );
 });
 
-const announcements = ref<AnnouncementList>({
-  items: [],
-  total: 0,
-  page: 1,
-  size: 20,
-  first: true,
-  hasNext: false,
-  hasPrevious: false,
-  last: true,
-  totalPages: 1
-});
-const isLoading = ref(true);
-const isFetching = ref(false);
-
-const fetchAnnouncements = async () => {
-  try {
-    isFetching.value = true;
-    // 根据API定义调整参数
+const {
+  data: announcements,
+  isLoading,
+  isFetching,
+  refetch,
+} = useQuery({
+  queryKey: [
+    "announcements",
+    page,
+    size,
+    keyword,
+    selectedSort,
+    selectedPermissions,
+  ],
+  queryFn: async () => {
     const { data } = await announcementApiClient.listAnnouncements({
       page: page.value,
       size: size.value,
@@ -79,31 +78,9 @@ const fetchAnnouncements = async () => {
     });
 
     total.value = data.total;
-    announcements.value = data;
-    page.value = data.page;
-    size.value = data.size;
-  } catch (e) {
-    console.error("Failed to fetch announcements", e);
-  } finally {
-    isLoading.value = false;
-    isFetching.value = false;
-  }
-};
-
-const refetch = () => {
-  fetchAnnouncements();
-};
-
-onMounted(() => {
-  fetchAnnouncements();
+    return data;
+  },
 });
-
-watch(
-  () => [page.value, size.value],
-  () => {
-    fetchAnnouncements();
-  }
-);
 
 // Selection
 const handleCheckAllChange = (e: Event) => {
@@ -170,7 +147,6 @@ const goCreate = () => {
     window.location.href = "/console/tools/announcements/new";
   }
 };
-
 </script>
 <template>
   <VPageHeader title="公告管理">

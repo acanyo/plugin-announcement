@@ -21,7 +21,8 @@
     "dayjs": "^1.11.13",
     "vue": "^3.5.17",
     "@wangeditor/editor": "^5.1.0",
-    "@wangeditor/editor-for-vue": "^5.1.0"
+    "@wangeditor/editor-for-vue": "^5.1.0",
+    "@vueuse/router": "^10.11.0"
   },
   "devDependencies": {
     "@halo-dev/ui-plugin-bundler-kit": "^2.21.1",
