@@ -43,6 +43,8 @@ public class Announcement extends AbstractExtension {
         private int popupInterval; // 弹窗弹出间隔（小时），0 表示不限制
         @Schema(requiredMode = REQUIRED)
         private Boolean confettiEnable; // 是否启用礼花爆炸效果
+        @Schema(requiredMode = REQUIRED)
+        private Boolean enablePopup; // 是否启用弹窗
 
         public enum ViewPermissions {
             loggedInUsers,

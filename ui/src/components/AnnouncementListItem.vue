@@ -45,8 +45,13 @@ const handleDelete = async () => {
 };
 
 const handleEdit = async () => {
-  // 编辑公告的逻辑，可以通过路由导航到编辑页面
-  // router.push(`/announcements/edit/${props.announcement.metadata.name}`);
+  // Navigate to edit page
+  const base = window.location.origin + window.location.pathname.replace(/\/?$/, "");
+  if (base.endsWith("/announcements")) {
+    window.location.href = base + "/edit/" + props.announcement.metadata.name;
+  } else {
+    window.location.href = "/console/tools/announcements/edit/" + props.announcement.metadata.name;
+  }
 };
 
 const getPermissionText = (permission: string) => {

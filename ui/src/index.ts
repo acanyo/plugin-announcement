@@ -39,6 +39,20 @@ export default definePlugin({
         },
       },
     },
+    {
+      parentName: "ToolsRoot",
+      route: {
+        path: "announcements/edit/:name",
+        name: "AnnouncementEdit",
+        component: () => import("@/views/AnnouncementEditor.vue"),
+        meta: {
+          title: "编辑公告",
+          description: "编辑现有公告",
+          searchable: false,
+          permissions: ["plugin:announcement:manage"],
+        },
+      },
+    },
   ],
   extensionPoints: {},
 });

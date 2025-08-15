@@ -24,7 +24,8 @@
     "@wangeditor/editor-for-vue": "^5.1.0",
     "axios": "^1.7.2",
     "dayjs": "^1.11.13",
-    "vue": "^3.5.17"
+    "vue": "^3.5.17",
+    "vue-router": "^4.4.3"
   },
   "devDependencies": {
     "@halo-dev/ui-plugin-bundler-kit": "^2.21.1",

@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref, shallowRef, onBeforeUnmount } from "vue";
-import { VPageHeader, VCard, VButton, Toast} from "@halo-dev/components";
+import { ref, shallowRef, onBeforeUnmount, onMounted, computed } from "vue";
+import { VPageHeader, VCard, VButton, Toast, VLoading } from "@halo-dev/components";
 import "@wangeditor/editor/dist/css/style.css";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import { announcementV1alpha1Api } from "@/api";
 import type { Announcement } from "@/api/generated";
 import IconAnnouncementMegaphone from '~icons/streamline-plump/announcement-megaphone?width=1.2em&height=1.2em';
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+const isEditMode = computed(() => route.name === "AnnouncementEdit");
+const announcementName = computed(() => route.params.name as string);
 
 const title = ref("");
 const permissions = ref("everyone");
@@ -14,10 +19,14 @@ const autoClose = ref(0);
 const closeOnClickOutside = ref(true);
 const popupInterval = ref(0);
 const confettiEnable = ref(false);
+const enablePopup = ref(false);
 
 // wangEditor state
 const editorRef = shallowRef();
 const html = ref("<p>这里是你的公告内容，支持<b>加粗</b>、<i>斜体</i>、图片、链接等富文本。</p>");
+
+// Loading state
+const isLoading = ref(false);
 
 function slugify(input: string): string {
   return input
@@ -45,54 +54,118 @@ onBeforeUnmount(() => {
   editor.destroy();
 });
 
+// Load announcement data for editing
+const loadAnnouncement = async () => {
+  if (!isEditMode.value || !announcementName.value) return;
+  
+  try {
+    isLoading.value = true;
+    const { data } = await announcementV1alpha1Api.getAnnouncement({ name: announcementName.value });
+    
+    // Populate form with existing data
+    title.value = data.announcementSpec.title || "";
+    permissions.value = data.announcementSpec.permissions || "everyone";
+    position.value = data.announcementSpec.position || "center";
+    autoClose.value = data.announcementSpec.autoClose || 0;
+    closeOnClickOutside.value = data.announcementSpec.closeOnClickOutside ?? true;
+    popupInterval.value = data.announcementSpec.popupInterval || 0;
+    confettiEnable.value = data.announcementSpec.confettiEnable ?? false;
+    enablePopup.value = (data.announcementSpec as any).enablePopup ?? true;
+    html.value = data.announcementSpec.content || "";
+    
+  } catch (e) {
+    console.error("Failed to load announcement:", e);
+    Toast.error("加载公告失败");
+  } finally {
+    isLoading.value = false;
+  }
+};
+
 const handleSubmit = async () => {
   if (!title.value.trim()) return Toast.warning("请输入标题");
   if (!html.value.trim()) return Toast.warning("请输入公告内容");
 
   try {
     isSubmitting.value = true;
-    const body: Announcement = {
-      apiVersion: "announcement.lik.cc/v1alpha1",
-      kind: "Announcement",
-      metadata: { name: slugify(title.value) as any },
-      announcementSpec: {
-        title: title.value,
-        permissions: permissions.value as any,
-        content: html.value,
-        position: position.value,
-        autoClose: Number(autoClose.value || 0),
-        closeOnClickOutside: Boolean(closeOnClickOutside.value),
-        popupInterval: Number(popupInterval.value || 0),
-        confettiEnable: Boolean(confettiEnable.value),
-      } as any,
-    };
-    await announcementV1alpha1Api.createAnnouncement({ announcement: body });
-    Toast.success("创建成功");
+    
+    if (isEditMode.value) {
+      // Update existing announcement
+      const { data } = await announcementV1alpha1Api.getAnnouncement({ name: announcementName.value });
+      const updatedAnnouncement: Announcement = {
+        ...data,
+        announcementSpec: {
+          ...data.announcementSpec,
+          title: title.value,
+          permissions: permissions.value as any,
+          content: html.value,
+          position: position.value,
+          autoClose: Number(autoClose.value || 0),
+          closeOnClickOutside: Boolean(closeOnClickOutside.value),
+          popupInterval: Number(popupInterval.value || 0),
+          confettiEnable: Boolean(confettiEnable.value),
+          enablePopup: Boolean(enablePopup.value),
+        } as any,
+      };
+      await announcementV1alpha1Api.updateAnnouncement({ 
+        name: announcementName.value, 
+        announcement: updatedAnnouncement 
+      });
+      Toast.success("更新成功");
+    } else {
+      // Create new announcement
+      const body: Announcement = {
+        apiVersion: "announcement.lik.cc/v1alpha1",
+        kind: "Announcement",
+        metadata: { name: slugify(title.value) as any },
+        announcementSpec: {
+          title: title.value,
+          permissions: permissions.value as any,
+          content: html.value,
+          position: position.value,
+          autoClose: Number(autoClose.value || 0),
+          closeOnClickOutside: Boolean(closeOnClickOutside.value),
+          popupInterval: Number(popupInterval.value || 0),
+          confettiEnable: Boolean(confettiEnable.value),
+          enablePopup: Boolean(enablePopup.value),
+        } as any,
+      };
+      await announcementV1alpha1Api.createAnnouncement({ announcement: body });
+      Toast.success("创建成功");
+    }
+    
     goBack();
   } catch (e) {
     console.error(e);
-    Toast.error("创建失败");
+    Toast.error(isEditMode.value ? "更新失败" : "创建失败");
   } finally {
     isSubmitting.value = false;
   }
 };
+
+// Load data on mount
+onMounted(() => {
+  loadAnnouncement();
+});
 </script>
 
 <template>
-  <VPageHeader title="新建公告">
+  <VPageHeader :title="isEditMode ? '编辑公告' : '新建公告'">
     <template #icon>
       <IconAnnouncementMegaphone class="mr-2 self-center" />
     </template>
     <template #actions>
       <div class="header-actions">
         <VButton class="mr-2" @click="goBack">返回</VButton>
-        <VButton :loading="isSubmitting" type="primary" @click="handleSubmit">保存</VButton>
+        <VButton :loading="isSubmitting" type="primary" @click="handleSubmit">
+          {{ isEditMode ? '更新' : '保存' }}
+        </VButton>
       </div>
     </template>
   </VPageHeader>
   <div class="m-0 md:m-4">
     <VCard>
-      <div class="editor-layout">
+      <VLoading v-if="isLoading" />
+      <div v-else class="editor-layout">
         <!-- 左侧：主内容 -->
         <div class="main">
           <div class="section">
@@ -166,6 +239,13 @@ const handleSubmit = async () => {
               <select v-model="confettiEnable" class="default-input">
                 <option :value="true">开启</option>
                 <option :value="false">关闭</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="field-label">启用弹窗</label>
+              <select v-model="enablePopup" class="default-input">
+                <option :value="true">是</option>
+                <option :value="false">否</option>
               </select>
             </div>
           </div>
