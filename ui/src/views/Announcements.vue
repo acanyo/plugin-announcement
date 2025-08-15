@@ -155,7 +155,7 @@ const goCreate = () => {
       <IconAnnouncementMegaphone class="mr-2 self-center" />
     </template>
     <template #actions>
-      <VButton type="primary" @click="goCreate">新建公告</VButton>
+      <VButton type="secondary" @click="goCreate">新建公告</VButton>
     </template>
   </VPageHeader>
   <div class="m-0 md:m-4">

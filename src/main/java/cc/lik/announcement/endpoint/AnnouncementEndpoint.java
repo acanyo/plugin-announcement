@@ -1,12 +1,14 @@
 package cc.lik.announcement.endpoint;
 
 import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder;
+import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
 
 import cc.lik.announcement.AnnouncementQuery;
 import cc.lik.announcement.extension.Announcement;
 import cc.lik.announcement.service.AnnouncementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -39,6 +41,22 @@ public class AnnouncementEndpoint implements CustomEndpoint {
                 AnnouncementQuery.buildParameters(builder);
                 }
             )
+            .GET("announcements/{name}", this::getAnnouncementByName, builder -> {
+                    builder.operationId("GetAnnouncementByName")
+                        .tag(tag)
+                        .description("根据名称获取公告")
+                        .parameter(parameterBuilder()
+                            .in(ParameterIn.PATH)
+                            .name("name")
+                            .description("公告名称")
+                            .required(true)
+                        )
+                        .response(
+                            responseBuilder()
+                                .implementation(Announcement.class)
+                        );
+                }
+            )
             .build();
     }
 
@@ -46,6 +64,13 @@ public class AnnouncementEndpoint implements CustomEndpoint {
         AnnouncementQuery query = new AnnouncementQuery(serverRequest);
         return announcementSvc.listAnnouncement(query)
             .flatMap(announcements -> ServerResponse.ok().bodyValue(announcements));
+    }
+    
+    Mono<ServerResponse> getAnnouncementByName(ServerRequest serverRequest) {
+        String name = serverRequest.pathVariable("name");
+        return announcementSvc.getAnnouncementByName(name)
+            .flatMap(announcement -> ServerResponse.ok().bodyValue(announcement))
+            .switchIfEmpty(ServerResponse.notFound().build());
     }
     @Override
     public GroupVersion groupVersion() {

@@ -5,7 +5,7 @@
     "version" : "2.21.1"
   },
   "servers" : [ {
-    "url" : "http://localhost:31567",
+    "url" : "http://localhost:31181",
     "description" : "Generated server url"
   } ],
   "security" : [ {
@@ -303,6 +303,34 @@
         },
         "tags" : [ "api.announcement.lik.cc/v1alpha1/Announcement" ]
       }
+    },
+    "/apis/api.announcement.lik.cc/v1alpha1/announcements/{name}" : {
+      "get" : {
+        "description" : "根据名称获取公告",
+        "operationId" : "GetAnnouncementByName",
+        "parameters" : [ {
+          "description" : "公告名称",
+          "in" : "path",
+          "name" : "name",
+          "required" : true,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "default" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/Announcement"
+                }
+              }
+            },
+            "description" : "default response"
+          }
+        },
+        "tags" : [ "api.announcement.lik.cc/v1alpha1/Announcement" ]
+      }
     }
   },
   "components" : {
@@ -342,8 +370,7 @@
           "metadata" : {
             "$ref" : "#/components/schemas/Metadata"
           }
-        },
-        "description" : "A chunk of items."
+        }
       },
       "AnnouncementList" : {
         "required" : [ "first", "hasNext", "hasPrevious", "items", "last", "page", "size", "total", "totalPages" ],
@@ -395,7 +422,7 @@
         }
       },
       "AnnouncementSpec" : {
-        "required" : [ "autoClose", "closeOnClickOutside", "confettiEnable", "content", "permissions", "popupInterval", "position", "title" ],
+        "required" : [ "autoClose", "closeOnClickOutside", "confettiEnable", "content", "enablePopup", "permissions", "popupInterval", "position", "title" ],
         "type" : "object",
         "properties" : {
           "autoClose" : {
@@ -410,6 +437,9 @@
           },
           "content" : {
             "type" : "string"
+          },
+          "enablePopup" : {
+            "type" : "boolean"
           },
           "permissions" : {
             "type" : "string",

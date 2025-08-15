@@ -22,6 +22,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { Announcement } from '../models';
+// @ts-ignore
 import type { AnnouncementList } from '../models';
 /**
  * ApiAnnouncementLikCcV1alpha1AnnouncementApi - axios parameter creator
@@ -29,6 +31,47 @@ import type { AnnouncementList } from '../models';
  */
 export const ApiAnnouncementLikCcV1alpha1AnnouncementApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
+        /**
+         * 根据名称获取公告
+         * @param {string} name 公告名称
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAnnouncementByName: async (name: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'name' is not null or undefined
+            assertParamExists('getAnnouncementByName', 'name', name)
+            const localVarPath = `/apis/api.announcement.lik.cc/v1alpha1/announcements/{name}`
+                .replace(`{${"name"}}`, encodeURIComponent(String(name)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication basicAuth required
+            // http basic authentication required
+            setBasicAuthToObject(localVarRequestOptions, configuration)
+
+            // authentication bearerAuth required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
         /**
          * 分页查询公告列表
          * @param {number} [page] Page number. Default is 0.
@@ -112,6 +155,18 @@ export const ApiAnnouncementLikCcV1alpha1AnnouncementApiFp = function(configurat
     const localVarAxiosParamCreator = ApiAnnouncementLikCcV1alpha1AnnouncementApiAxiosParamCreator(configuration)
     return {
         /**
+         * 根据名称获取公告
+         * @param {string} name 公告名称
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getAnnouncementByName(name: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Announcement>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getAnnouncementByName(name, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['ApiAnnouncementLikCcV1alpha1AnnouncementApi.getAnnouncementByName']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 分页查询公告列表
          * @param {number} [page] Page number. Default is 0.
          * @param {number} [size] Size number. Default is 0.
@@ -140,6 +195,15 @@ export const ApiAnnouncementLikCcV1alpha1AnnouncementApiFactory = function (conf
     const localVarFp = ApiAnnouncementLikCcV1alpha1AnnouncementApiFp(configuration)
     return {
         /**
+         * 根据名称获取公告
+         * @param {ApiAnnouncementLikCcV1alpha1AnnouncementApiGetAnnouncementByNameRequest} requestParameters Request parameters.
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getAnnouncementByName(requestParameters: ApiAnnouncementLikCcV1alpha1AnnouncementApiGetAnnouncementByNameRequest, options?: RawAxiosRequestConfig): AxiosPromise<Announcement> {
+            return localVarFp.getAnnouncementByName(requestParameters.name, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 分页查询公告列表
          * @param {ApiAnnouncementLikCcV1alpha1AnnouncementApiListAnnouncementsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
@@ -150,6 +214,20 @@ export const ApiAnnouncementLikCcV1alpha1AnnouncementApiFactory = function (conf
         },
     };
 };
+
+/**
+ * Request parameters for getAnnouncementByName operation in ApiAnnouncementLikCcV1alpha1AnnouncementApi.
+ * @export
+ * @interface ApiAnnouncementLikCcV1alpha1AnnouncementApiGetAnnouncementByNameRequest
+ */
+export interface ApiAnnouncementLikCcV1alpha1AnnouncementApiGetAnnouncementByNameRequest {
+    /**
+     * 公告名称
+     * @type {string}
+     * @memberof ApiAnnouncementLikCcV1alpha1AnnouncementApiGetAnnouncementByName
+     */
+    readonly name: string
+}
 
 /**
  * Request parameters for listAnnouncements operation in ApiAnnouncementLikCcV1alpha1AnnouncementApi.
@@ -214,6 +292,17 @@ export interface ApiAnnouncementLikCcV1alpha1AnnouncementApiListAnnouncementsReq
  * @extends {BaseAPI}
  */
 export class ApiAnnouncementLikCcV1alpha1AnnouncementApi extends BaseAPI {
+    /**
+     * 根据名称获取公告
+     * @param {ApiAnnouncementLikCcV1alpha1AnnouncementApiGetAnnouncementByNameRequest} requestParameters Request parameters.
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof ApiAnnouncementLikCcV1alpha1AnnouncementApi
+     */
+    public getAnnouncementByName(requestParameters: ApiAnnouncementLikCcV1alpha1AnnouncementApiGetAnnouncementByNameRequest, options?: RawAxiosRequestConfig) {
+        return ApiAnnouncementLikCcV1alpha1AnnouncementApiFp(this.configuration).getAnnouncementByName(requestParameters.name, options).then((request) => request(this.axios, this.basePath));
+    }
+
     /**
      * 分页查询公告列表
      * @param {ApiAnnouncementLikCcV1alpha1AnnouncementApiListAnnouncementsRequest} requestParameters Request parameters.

@@ -46,6 +46,12 @@ export interface AnnouncementSpec {
     'content': string;
     /**
      * 
+     * @type {boolean}
+     * @memberof AnnouncementSpec
+     */
+    'enablePopup': boolean;
+    /**
+     * 
      * @type {string}
      * @memberof AnnouncementSpec
      */

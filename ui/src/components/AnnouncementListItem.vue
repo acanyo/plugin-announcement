@@ -107,7 +107,8 @@ const getBehaviorSummary = (a: Announcement) => {
   const outside = s.closeOnClickOutside ? '可外部关闭' : '不可外部关闭';
   const interval = s.popupInterval && s.popupInterval > 0 ? `${s.popupInterval}h 间隔` : '无间隔限制';
   const confetti = s.confettiEnable ? '礼花开启' : '礼花关闭';
-  return `${auto} · ${outside} · ${interval} · ${confetti}`;
+  const popup = s.enablePopup ? '弹窗开启' : '弹窗关闭';
+  return `${auto} · ${outside} · ${popup} · ${interval} · ${confetti}`;
 };
 
 </script>

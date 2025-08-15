@@ -42,6 +42,7 @@ public class AnnouncementQuery extends SortableRequest {
             .filter(StringUtils::isNotBlank)
             .ifPresent(keyword -> builder.andQuery(or(
                 contains("announcementSpec.title", keyword),
+                contains("announcementSpec.enablePopup", keyword),
                 contains("metadata.name", keyword)
             )));
 

@@ -67,6 +67,12 @@ public class AnnouncementPlugin extends BasePlugin {
                     selectedComment -> String.valueOf(
                         selectedComment.getAnnouncementSpec().getConfettiEnable()))
                 ));
+            indexSpecs.add(new IndexSpec()
+                .setName("announcementSpec.enablePopup")
+                .setIndexFunc(simpleAttribute(Announcement.class,
+                    selectedComment -> String.valueOf(
+                        selectedComment.getAnnouncementSpec().getEnablePopup()))
+                ));
         });
     }
 

@@ -3,7 +3,7 @@ import { ref, shallowRef, onBeforeUnmount, onMounted, computed } from "vue";
 import { VPageHeader, VCard, VButton, Toast, VLoading } from "@halo-dev/components";
 import "@wangeditor/editor/dist/css/style.css";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
-import { announcementV1alpha1Api } from "@/api";
+import { announcementV1alpha1Api, announcementApiClient } from "@/api";
 import type { Announcement } from "@/api/generated";
 import IconAnnouncementMegaphone from '~icons/streamline-plump/announcement-megaphone?width=1.2em&height=1.2em';
 import { useRoute } from "vue-router";
@@ -57,11 +57,11 @@ onBeforeUnmount(() => {
 // Load announcement data for editing
 const loadAnnouncement = async () => {
   if (!isEditMode.value || !announcementName.value) return;
-  
+
   try {
     isLoading.value = true;
-    const { data } = await announcementV1alpha1Api.getAnnouncement({ name: announcementName.value });
-    
+    const { data } = await announcementApiClient.getAnnouncementByName({ name: announcementName.value });
+
     // Populate form with existing data
     title.value = data.announcementSpec.title || "";
     permissions.value = data.announcementSpec.permissions || "everyone";
@@ -72,7 +72,7 @@ const loadAnnouncement = async () => {
     confettiEnable.value = data.announcementSpec.confettiEnable ?? false;
     enablePopup.value = (data.announcementSpec as any).enablePopup ?? true;
     html.value = data.announcementSpec.content || "";
-    
+
   } catch (e) {
     console.error("Failed to load announcement:", e);
     Toast.error("加载公告失败");
@@ -85,12 +85,41 @@ const handleSubmit = async () => {
   if (!title.value.trim()) return Toast.warning("请输入标题");
   if (!html.value.trim()) return Toast.warning("请输入公告内容");
 
+    // 增强的弹窗启用唯一性校验
+  if (enablePopup.value) {
+    try {
+      // 获取所有公告以检查唯一性
+      const { data } = await announcementApiClient.listAnnouncements({
+        page: 1,
+        size: 20,
+        sort: undefined,
+        keyword: "true",
+        announcementSpecPermissions: undefined
+      });
+
+      const otherEnabledAnnouncements = data.items.filter(
+        (announcement: Announcement) =>
+          announcement.metadata.name !== announcementName.value &&
+          (announcement.announcementSpec as any).enablePopup === true
+      );
+
+      if (otherEnabledAnnouncements.length > 0) {
+        Toast.error(`⚠️ 重要提示：全局只能存在一个启用的弹窗！当前检测到 ${otherEnabledAnnouncements.length} 个其他已启用的弹窗，请先禁用后再保存。`);
+        return;
+      }
+    } catch (e) {
+      console.error("禁用其他公告弹窗失败:", e);
+      Toast.error("错误：无法完成唯一性校验，请检查网络连接或重试");
+      return; // 如果唯一性校验失败，停止操作
+    }
+  }
+
   try {
     isSubmitting.value = true;
-    
+
     if (isEditMode.value) {
       // Update existing announcement
-      const { data } = await announcementV1alpha1Api.getAnnouncement({ name: announcementName.value });
+      const { data } = await announcementApiClient.getAnnouncementByName({ name: announcementName.value });
       const updatedAnnouncement: Announcement = {
         ...data,
         announcementSpec: {
@@ -106,9 +135,9 @@ const handleSubmit = async () => {
           enablePopup: Boolean(enablePopup.value),
         } as any,
       };
-      await announcementV1alpha1Api.updateAnnouncement({ 
-        name: announcementName.value, 
-        announcement: updatedAnnouncement 
+      await announcementV1alpha1Api.updateAnnouncement({
+        name: announcementName.value,
+        announcement: updatedAnnouncement
       });
       Toast.success("更新成功");
     } else {
@@ -132,7 +161,7 @@ const handleSubmit = async () => {
       await announcementV1alpha1Api.createAnnouncement({ announcement: body });
       Toast.success("创建成功");
     }
-    
+
     goBack();
   } catch (e) {
     console.error(e);
@@ -156,7 +185,7 @@ onMounted(() => {
     <template #actions>
       <div class="header-actions">
         <VButton class="mr-2" @click="goBack">返回</VButton>
-        <VButton :loading="isSubmitting" type="primary" @click="handleSubmit">
+        <VButton :loading="isSubmitting" type="secondary" @click="handleSubmit">
           {{ isEditMode ? '更新' : '保存' }}
         </VButton>
       </div>
@@ -206,6 +235,14 @@ onMounted(() => {
           <div class="side-card">
             <div class="section-title">显示设置</div>
             <div class="form-row">
+              <label class="field-label">启用弹窗</label>
+              <select v-model="enablePopup" class="default-input">
+                <option :value="true">是</option>
+                <option :value="false">否</option>
+              </select>
+              <p class="field-help">⚠️ 重要提示：全局只能存在一个启用的弹窗！启用此弹窗将自动禁用其他所有弹窗。</p>
+            </div>
+            <div class="form-row">
               <label class="field-label">弹窗位置</label>
               <select v-model="position" class="default-input">
                 <option value="center">居中</option>
@@ -241,13 +278,6 @@ onMounted(() => {
                 <option :value="false">关闭</option>
               </select>
             </div>
-            <div class="form-row">
-              <label class="field-label">启用弹窗</label>
-              <select v-model="enablePopup" class="default-input">
-                <option :value="true">是</option>
-                <option :value="false">否</option>
-              </select>
-            </div>
           </div>
         </div>
       </div>
@@ -269,6 +299,7 @@ onMounted(() => {
 .side-card { border: 1px solid #f2f3f5; border-radius: 8px; padding: 16px; background: #fff; }
 .form-row { margin-top: 12px; }
 .field-label { display:block; font-size: 12px; color: #4e5969; margin-bottom: 6px; }
+.field-help { font-size: 11px; color: #86909c; margin-top: 4px; font-style: italic; }
 
 /***** Inputs *****/
 .default-input { width: 100%; height: 36px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; background: #fff; }

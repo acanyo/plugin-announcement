@@ -21,7 +21,7 @@ import type { AnnouncementSpec } from './announcement-spec';
 import type { Metadata } from './metadata';
 
 /**
- * A chunk of items.
+ * 
  * @export
  * @interface Announcement
  */

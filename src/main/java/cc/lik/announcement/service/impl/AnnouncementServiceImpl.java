@@ -15,11 +15,15 @@ import run.halo.app.extension.ReactiveExtensionClient;
 public class AnnouncementServiceImpl implements AnnouncementService {
 
     private final ReactiveExtensionClient client;
+    
     @Override
     public Mono<ListResult<Announcement>> listAnnouncement(AnnouncementQuery query) {
         return client.listBy(Announcement.class, query.toListOptions(),
             PageRequestImpl.of(query.getPage(), query.getSize(), query.getSort()));
     }
-
-
+    
+    @Override
+    public Mono<Announcement> getAnnouncementByName(String name) {
+        return client.get(Announcement.class, name);
+    }
 }
