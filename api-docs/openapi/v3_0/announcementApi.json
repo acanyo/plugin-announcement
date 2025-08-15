@@ -5,7 +5,7 @@
     "version" : "2.21.1"
   },
   "servers" : [ {
-    "url" : "http://localhost:31181",
+    "url" : "http://localhost:44857",
     "description" : "Generated server url"
   } ],
   "security" : [ {
@@ -422,7 +422,7 @@
         }
       },
       "AnnouncementSpec" : {
-        "required" : [ "autoClose", "closeOnClickOutside", "confettiEnable", "content", "enablePopup", "permissions", "popupInterval", "position", "title" ],
+        "required" : [ "autoClose", "closeOnClickOutside", "confettiEnable", "content", "enablePinning", "enablePopup", "permissions", "popupInterval", "position", "title" ],
         "type" : "object",
         "properties" : {
           "autoClose" : {
@@ -437,6 +437,9 @@
           },
           "content" : {
             "type" : "string"
+          },
+          "enablePinning" : {
+            "type" : "boolean"
           },
           "enablePopup" : {
             "type" : "boolean"

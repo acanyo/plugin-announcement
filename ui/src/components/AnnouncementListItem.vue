@@ -107,10 +107,30 @@ const getBehaviorSummary = (a: Announcement) => {
   const outside = s.closeOnClickOutside ? '可外部关闭' : '不可外部关闭';
   const interval = s.popupInterval && s.popupInterval > 0 ? `${s.popupInterval}h 间隔` : '无间隔限制';
   const confetti = s.confettiEnable ? '礼花开启' : '礼花关闭';
-  const popup = s.enablePopup ? '弹窗开启' : '弹窗关闭';
-  return `${auto} · ${outside} · ${popup} · ${interval} · ${confetti}`;
+  return `${auto} · ${outside} · ${interval} · ${confetti}`;
 };
 
+const handleTogglePinning = async () => {
+  const name = props.announcement.metadata.name as string;
+  const current = (props.announcement.announcementSpec as any).enablePinning === true;
+  const target = !current;
+  try {
+    const updatedAnnouncement = {
+      ...props.announcement,
+      announcementSpec: {
+        ...props.announcement.announcementSpec,
+        enablePinning: target,
+      },
+    } as any;
+    await announcementV1alpha1Api.updateAnnouncement({ name, announcement: updatedAnnouncement });
+    Toast.success(target ? '已置顶' : '已取消置顶');
+  } catch (e) {
+    console.error('Failed to toggle pinning', e);
+    Toast.error('操作失败');
+  } finally {
+    emit('refresh');
+  }
+};
 </script>
 <template>
   <VEntity :is-selected="isSelected">
@@ -147,7 +167,7 @@ const getBehaviorSummary = (a: Announcement) => {
           <VStatusDot
             v-tooltip="'删除中'"
             state="warning"
-            text="删除中"
+            text="'删除中'"
           />
         </template>
       </VEntityField>
@@ -163,6 +183,9 @@ const getBehaviorSummary = (a: Announcement) => {
       <HasPermission :permissions="['plugin:announcement:manage']">
         <VDropdownItem @click="handleEdit">
           编辑
+        </VDropdownItem>
+        <VDropdownItem @click="handleTogglePinning">
+          {{ (announcement.announcementSpec as any).enablePinning ? '取消置顶' : '置顶' }}
         </VDropdownItem>
         <VDropdownItem type="danger" @click="handleDelete">
           删除

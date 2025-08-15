@@ -20,6 +20,7 @@ const closeOnClickOutside = ref(true);
 const popupInterval = ref(0);
 const confettiEnable = ref(false);
 const enablePopup = ref(false);
+const enablePinning = ref(false);
 
 // wangEditor state
 const editorRef = shallowRef();
@@ -71,6 +72,7 @@ const loadAnnouncement = async () => {
     popupInterval.value = data.announcementSpec.popupInterval || 0;
     confettiEnable.value = data.announcementSpec.confettiEnable ?? false;
     enablePopup.value = (data.announcementSpec as any).enablePopup ?? true;
+    enablePinning.value = (data.announcementSpec as any).enablePinning ?? false;
     html.value = data.announcementSpec.content || "";
 
   } catch (e) {
@@ -133,6 +135,7 @@ const handleSubmit = async () => {
           popupInterval: Number(popupInterval.value || 0),
           confettiEnable: Boolean(confettiEnable.value),
           enablePopup: Boolean(enablePopup.value),
+          enablePinning: Boolean(enablePinning.value),
         } as any,
       };
       await announcementV1alpha1Api.updateAnnouncement({
@@ -156,6 +159,7 @@ const handleSubmit = async () => {
           popupInterval: Number(popupInterval.value || 0),
           confettiEnable: Boolean(confettiEnable.value),
           enablePopup: Boolean(enablePopup.value),
+          enablePinning: Boolean(enablePinning.value),
         } as any,
       };
       await announcementV1alpha1Api.createAnnouncement({ announcement: body });
@@ -241,6 +245,13 @@ onMounted(() => {
                 <option :value="false">否</option>
               </select>
               <p class="field-help">⚠️ 重要提示：全局只能存在一个启用的弹窗！启用此弹窗将自动禁用其他所有弹窗。</p>
+            </div>
+            <div class="form-row">
+              <label class="field-label">置顶</label>
+              <select v-model="enablePinning" class="default-input">
+                <option :value="true">是</option>
+                <option :value="false">否</option>
+              </select>
             </div>
             <div class="form-row">
               <label class="field-label">弹窗位置</label>

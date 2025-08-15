@@ -49,6 +49,12 @@ export interface AnnouncementSpec {
      * @type {boolean}
      * @memberof AnnouncementSpec
      */
+    'enablePinning': boolean;
+    /**
+     * 
+     * @type {boolean}
+     * @memberof AnnouncementSpec
+     */
     'enablePopup': boolean;
     /**
      * 

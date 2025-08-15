@@ -45,6 +45,8 @@ public class Announcement extends AbstractExtension {
         private Boolean confettiEnable; // 是否启用礼花爆炸效果
         @Schema(requiredMode = REQUIRED)
         private Boolean enablePopup; // 是否启用弹窗
+        @Schema(requiredMode = REQUIRED)
+        private Boolean enablePinning; // 是否开启置顶
 
         public enum ViewPermissions {
             loggedInUsers,
