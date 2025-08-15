@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title th:text="${title}">公告</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; color:#1d2129; background:#f7f8fa; margin:0; }
+    .container { max-width: 880px; margin: 24px auto; padding: 0 16px; }
+    .card { background:#fff; border:1px solid #f2f3f5; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.03); }
+    .title { display:flex; align-items:center; gap:8px; font-size:16px; font-weight:600; }
+    .pin { display:inline-block; font-size:12px; color:#fff; background:#165dff; border-radius: 10px; padding: 2px 8px; }
+    .meta { margin-top: 6px; color:#86909c; font-size:12px; }
+    .content { margin-top: 12px; font-size: 14px; line-height: 1.72; color:#4e5969; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 style="font-size:18px; font-weight:700; margin: 8px 0 16px;">公告</h1>
+    <div th:if="${#lists.isEmpty(announcements)}" class="card">
+      暂无公告
+    </div>
+    <div th:each="a : ${announcements}" class="card">
+      <div class="title">
+        <span th:text="${a.announcementSpec.title}">标题</span>
+        <span class="pin" th:if="${a.announcementSpec.enablePinning}">置顶</span>
+      </div>
+      <div class="meta" th:text="${#temporals.format(a.metadata.creationTimestamp, 'yyyy-MM-dd HH:mm')}">时间</div>
+      <div class="content" th:utext="${a.announcementSpec.content}"></div>
+    </div>
+  </div>
+</body>
+</html> 

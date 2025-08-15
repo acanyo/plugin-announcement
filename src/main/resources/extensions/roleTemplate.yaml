@@ -1,0 +1,38 @@
+apiVersion: v1alpha1
+kind: "Role"
+metadata:
+  name: role-template-manage-announcement
+  labels:
+    halo.run/role-template: "true"
+  annotations:
+    rbac.authorization.halo.run/dependencies: |
+      [ "role-template-view-announcement" ]
+    rbac.authorization.halo.run/module: "公告"
+    rbac.authorization.halo.run/display-name: "公告管理"
+    rbac.authorization.halo.run/ui-permissions: |
+      ["plugin:announcement:manage"]
+rules:
+  - apiGroups: [ "announcement.lik.cc" ]
+    resources: [ "announcements" ]
+    verbs: [ "*" ]
+
+---
+
+apiVersion: v1alpha1
+kind: "Role"
+metadata:
+  name: role-template-view-announcement
+  labels:
+    halo.run/role-template: "true"
+  annotations:
+    rbac.authorization.halo.run/module: "公告"
+    rbac.authorization.halo.run/display-name: "公告查看"
+    rbac.authorization.halo.run/ui-permissions: |
+      ["plugin:announcement:view"]
+rules:
+  - apiGroups: [ "announcement.lik.cc" ]
+    resources: [ "announcement" ]
+    verbs: [ "get", "list" ]
+  - apiGroups: [ "api.announcement.lik.cc" ]
+    resources: [ "announcement" ]
+    verbs: [ "list" ]

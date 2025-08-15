@@ -148,6 +148,10 @@ const goCreate = () => {
     window.location.href = "/console/tools/announcements/new";
   }
 };
+
+const goFrontend = () => {
+  window.open("/announcements", "_blank");
+};
 </script>
 <template>
   <VPageHeader title="公告管理">
@@ -155,6 +159,7 @@ const goCreate = () => {
       <IconAnnouncementMegaphone class="mr-2 self-center" />
     </template>
     <template #actions>
+      <VButton type="default" @click="goFrontend"><IconExternalLinkLine /> 跳转前台</VButton>
       <VButton type="secondary" @click="goCreate">新建公告</VButton>
     </template>
   </VPageHeader>
