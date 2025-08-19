@@ -1,0 +1,565 @@
+/* 公告列表样式文件 - 使用 likcc-announcement-list- 前缀避免样式冲突 */
+
+/* 基础重置和通用样式 */
+.likcc-announcement-list * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.likcc-announcement-list-body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f8f9fa;
+}
+
+.likcc-announcement-list-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* 页面头部样式 */
+.likcc-announcement-list-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.likcc-announcement-list-page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.likcc-announcement-list-page-title i {
+    font-size: 2.2rem;
+    color: #ffd700;
+}
+
+.likcc-announcement-list-page-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+    font-weight: 300;
+}
+
+
+
+
+
+/* 主要内容区域 */
+.likcc-announcement-list-main-content {
+    padding: 40px 0;
+}
+
+
+
+
+
+/* 公告列表样式 */
+.likcc-announcement-list {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.likcc-announcement-list-item {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    border: 1px solid #e9ecef;
+    position: relative;
+    overflow: hidden;
+}
+
+.likcc-announcement-list-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.likcc-announcement-list-item.likcc-announcement-list-pinned {
+    border-left: 5px solid #ffd700;
+    background: linear-gradient(135deg, #fff9c4 0%, #ffffff 100%);
+}
+
+.likcc-announcement-list-pinned-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #ffd700;
+    color: #333;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+}
+
+/* 公告头部样式 */
+.likcc-announcement-list-item-header {
+    margin-bottom: 20px;
+}
+
+.likcc-announcement-list-item-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
+    line-height: 1.3;
+}
+
+.likcc-announcement-list-item-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.likcc-announcement-list-meta-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.likcc-announcement-list-meta-item i {
+    color: #667eea;
+    font-size: 1rem;
+}
+
+/* 公告内容样式 */
+.likcc-announcement-list-item-content {
+    margin-bottom: 25px;
+    line-height: 1.7;
+    color: #555;
+}
+
+.likcc-announcement-list-item-content h1,
+.likcc-announcement-list-item-content h2,
+.likcc-announcement-list-item-content h3,
+.likcc-announcement-list-item-content h4,
+.likcc-announcement-list-item-content h5,
+.likcc-announcement-list-item-content h6 {
+    margin: 20px 0 10px 0;
+    color: #333;
+}
+
+.likcc-announcement-list-item-content p {
+    margin-bottom: 15px;
+}
+
+.likcc-announcement-list-item-content ul,
+.likcc-announcement-list-item-content ol {
+    margin: 15px 0;
+    padding-left: 25px;
+}
+
+.likcc-announcement-list-item-content li {
+    margin-bottom: 8px;
+}
+
+.likcc-announcement-list-item-content a {
+    color: #667eea;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s ease;
+}
+
+.likcc-announcement-list-item-content a:hover {
+    border-bottom-color: #667eea;
+}
+
+/* 公告状态样式 */
+
+
+/* 公告操作样式 */
+.likcc-announcement-list-item-footer {
+    border-top: 1px solid #e9ecef;
+    padding-top: 20px;
+}
+
+.likcc-announcement-list-item-actions {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.likcc-announcement-list-action-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.likcc-announcement-list-view-button {
+    background: #667eea;
+    color: white;
+}
+
+.likcc-announcement-list-view-button:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.likcc-announcement-list-share-button {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #e9ecef;
+}
+
+.likcc-announcement-list-share-button:hover {
+    background: #e9ecef;
+    color: #495057;
+    transform: translateY(-2px);
+}
+
+/* 空状态样式 */
+.likcc-announcement-list-empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.likcc-announcement-list-empty-icon {
+    font-size: 4rem;
+    color: #dee2e6;
+    margin-bottom: 20px;
+}
+
+.likcc-announcement-list-empty-title {
+    font-size: 1.5rem;
+    color: #6c757d;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.likcc-announcement-list-empty-description {
+    color: #adb5bd;
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+.likcc-announcement-list-empty-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #667eea;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.likcc-announcement-list-empty-button:hover {
+    background: #5a6fd8;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+/* 分页样式 */
+.likcc-announcement-list-pagination-container {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.likcc-announcement-list-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.likcc-announcement-list-pagination-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.likcc-announcement-list-pagination-item:hover {
+    background: #f8f9fa;
+    border-color: #667eea;
+    color: #667eea;
+    transform: translateY(-2px);
+}
+
+.likcc-announcement-list-pagination-item.likcc-announcement-list-pagination-active {
+    background: #667eea;
+    color: white;
+    border-color: #667eea;
+}
+
+.likcc-announcement-list-pagination-prev,
+.likcc-announcement-list-pagination-next {
+    background: #f8f9fa;
+}
+
+.likcc-announcement-list-pagination-numbers {
+    display: flex;
+    gap: 5px;
+}
+
+
+
+/* 页面底部样式 */
+.likcc-announcement-list-footer-page {
+    background: #343a40;
+    color: white;
+    padding: 30px 0;
+    text-align: center;
+    margin-top: 60px;
+}
+
+.likcc-announcement-list-footer-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #adb5bd;
+}
+
+.likcc-announcement-list-footer-text i {
+    color: #e91e63;
+}
+
+/* 分享弹窗样式 */
+.likcc-announcement-list-share-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    backdrop-filter: blur(5px);
+}
+
+.likcc-announcement-list-share-modal-content {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    border-radius: 16px;
+    padding: 0;
+    min-width: 400px;
+    max-width: 90%;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: likcc-announcement-list-modal-slide-in 0.3s ease;
+}
+
+@keyframes likcc-announcement-list-modal-slide-in {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.likcc-announcement-list-share-modal-header {
+    padding: 25px 30px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.likcc-announcement-list-share-modal-header h3 {
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0;
+}
+
+.likcc-announcement-list-share-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.likcc-announcement-list-share-modal-close:hover {
+    background: #f8f9fa;
+    color: #333;
+}
+
+.likcc-announcement-list-share-modal-body {
+    padding: 30px;
+}
+
+.likcc-announcement-list-share-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+}
+
+.likcc-announcement-list-share-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.likcc-announcement-list-share-option:hover {
+    border-color: #667eea;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
+}
+
+.likcc-announcement-list-share-option i {
+    font-size: 2rem;
+    color: #667eea;
+}
+
+.likcc-announcement-list-share-option span {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .likcc-announcement-list-container {
+        padding: 0 15px;
+    }
+    
+    .likcc-announcement-list-page-title {
+        font-size: 2rem;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .likcc-announcement-list-header {
+        padding: 40px 0;
+    }
+    
+    .likcc-announcement-list-search-input-group {
+        flex-direction: column;
+        border-radius: 12px;
+    }
+    
+    .likcc-announcement-list-search-button {
+        border-radius: 0 0 12px 12px;
+    }
+    
+    .likcc-announcement-list-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .likcc-announcement-list-item {
+        padding: 20px;
+    }
+    
+    .likcc-announcement-list-item-meta {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .likcc-announcement-list-item-actions {
+        flex-direction: column;
+    }
+    
+    .likcc-announcement-list-action-button {
+        justify-content: center;
+    }
+    
+    .likcc-announcement-list-pagination {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .likcc-announcement-list-share-modal-content {
+        min-width: 90%;
+        margin: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .likcc-announcement-list-page-title {
+        font-size: 1.8rem;
+    }
+    
+    .likcc-announcement-list-item {
+        padding: 15px;
+    }
+    
+    .likcc-announcement-list-item-title {
+        font-size: 1.3rem;
+    }
+    
+    .likcc-announcement-list-stat-item {
+        padding: 20px;
+    }
+    
+    .likcc-announcement-list-stat-value {
+        font-size: 1.5rem;
+    }
+}
+
+/* 打印样式 */
+@media print {
+    .likcc-announcement-list-header,
+    .likcc-announcement-list-search-section,
+    .likcc-announcement-list-footer-page,
+    .likcc-announcement-list-item-actions,
+    .likcc-announcement-list-pagination-container {
+        display: none;
+    }
+    
+    .likcc-announcement-list-item {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ccc;
+    }
+    
+    .likcc-announcement-list-body {
+        background: white;
+    }
+} 

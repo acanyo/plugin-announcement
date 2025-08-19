@@ -1,6 +1,6 @@
-package cc.lik.bingeWatching.vo;
+package cc.lik.announcement.vo;
 
-import cc.lik.bingeWatching.entity.HandsomeMovie;
+import cc.lik.announcement.extension.Announcement;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
@@ -12,16 +12,16 @@ import run.halo.app.extension.MetadataOperator;
 @SuperBuilder
 @ToString
 @EqualsAndHashCode
-public class HandsomeMovieVo {
+public class AnnouncementVo {
 
     private MetadataOperator metadata;
 
-    private HandsomeMovie.HandsomeMovieSpec spec;
+    private Announcement.AnnouncementSpec spec;
 
-    public static HandsomeMovieVo from(HandsomeMovie footprint) {
-        return HandsomeMovieVo.builder()
+    public static AnnouncementVo from(Announcement footprint) {
+        return AnnouncementVo.builder()
             .metadata(footprint.getMetadata())
-            .spec(footprint.getSpec())
+            .spec(footprint.getAnnouncementSpec())
             .build();
     }
 }

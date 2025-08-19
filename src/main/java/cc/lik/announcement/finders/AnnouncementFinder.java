@@ -1,24 +1,26 @@
-package cc.lik.bingeWatching.finders;
+package cc.lik.announcement.finders;
 
-import cc.lik.bingeWatching.vo.HandsomeMovieVo;
+import cc.lik.announcement.vo.AnnouncementVo;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import run.halo.app.extension.ListResult;
 
-public interface HandsomeMovieFinder {
+public interface AnnouncementFinder {
 
-    Flux<HandsomeMovieVo> listAll();
+    Flux<AnnouncementVo> listAll();
 
-    Mono<ListResult<HandsomeMovieVo>> list(Integer page, Integer size);
+    Mono<ListResult<AnnouncementVo>> list(Integer page, Integer size);
 
-    Mono<HandsomeMovieVo> getByName(String movieName);
-    Flux<HandsomeMovieVo> getByMetadataName(String MetadataName);
+    Mono<AnnouncementVo> getByName(String announcementName);
 
-    Mono<ListResult<HandsomeMovieVo>> listByName(Integer page, Integer size,String movieName);
+    Flux<AnnouncementVo> getByMetadataName(String metadataName);
+
+    Mono<ListResult<AnnouncementVo>> listByName(Integer page, Integer size, String announcementName);
 
     /**
-     * 根据名称模糊查询影视
+     * 根据标题模糊查询公告
      */
-    Flux<HandsomeMovieVo> fuzzySearchByName(String keyword);
-    Mono<ListResult<HandsomeMovieVo>>  listFuzzySearchByName(Integer page, Integer size,String keyword);
+    Flux<AnnouncementVo> fuzzySearchByTitle(String keyword);
+    
+    Mono<ListResult<AnnouncementVo>> listFuzzySearchByTitle(Integer page, Integer size, String keyword);
 }
