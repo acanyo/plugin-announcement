@@ -168,7 +168,7 @@ const handleTogglePinning = async () => {
           <VStatusDot
             v-tooltip="'删除中'"
             state="warning"
-            text="'删除中'"
+            text="删除中"
           />
         </template>
       </VEntityField>

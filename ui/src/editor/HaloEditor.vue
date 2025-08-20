@@ -13,7 +13,6 @@ import {
   ExtensionColumn,
   ExtensionColumns,
   ExtensionCommands,
-  ExtensionDetails,
   ExtensionDocument,
   ExtensionDraggable,
   ExtensionDropcursor,
@@ -313,25 +312,20 @@ const presetExtensions = [
   ExtensionSearchAndReplace,
   ExtensionClearFormat,
   ExtensionFormatBrush,
-  ExtensionRangeSelection,
-  ExtensionDetails.configure({
-    persist: true,
-  }),
-  ContentHiddenExtension,
-  ContentSeparatorExtension
+  ExtensionRangeSelection
 ];
 
 const { filterDuplicateExtensions } = useExtension();
 
 onMounted(async () => {
-  const enabledPlugins = window.enabledPlugins.filter((plugin) =>
+  const enabledPlugins = (window as any).enabledPlugins?.filter((plugin: any) =>
           supportedPluginNames.includes(plugin.name)
-  );
-  const enabledPluginNames = enabledPlugins.map((plugin) => plugin.name);
+  ) || [];
+  const enabledPluginNames = enabledPlugins.map((plugin: any) => plugin.name);
   const enabledPluginModules: PluginModule[] = enabledPluginNames
-          .map((name) => {
-            if (window[name as keyof Window]) {
-              return window[name as keyof Window];
+          .map((name: any) => {
+            if ((window as any)[name]) {
+              return (window as any)[name];
             }
           })
           .filter(Boolean);
@@ -403,7 +397,7 @@ function onTitleInput(event: Event) {
   emit("update:title", (event.target as HTMLInputElement).value);
 }
 
-function handleFocusEditor(event) {
+function handleFocusEditor(event: any) {
   if (event.isComposing) {
     return;
   }

@@ -11,71 +11,48 @@
     <!-- 引入图标字体 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
 </head>
-<body>
-    <!-- 页面头部 -->
-    <header class="likcc-announcement-list-header">
-        <div class="likcc-announcement-list-container">
-            <h1 class="likcc-announcement-list-page-title">
+<body class="likcc-announcement-shell likcc-announcement-list-root">
+    <!-- 顶部横幅（Hero） -->
+    <header class="likcc-announcement-hero">
+        <div class="likcc-announcement-container">
+            <div class="likcc-announcement-hero__title">
                 <i class="ri-megaphone-line"></i>
-                公告列表
-            </h1>
-            <p class="likcc-announcement-list-page-subtitle">查看所有重要公告和通知</p>
+                公告中心
+            </div>
+            <div class="likcc-announcement-hero__subtitle">最新通知与重要信息</div>
         </div>
     </header>
 
 
 
     <!-- 主要内容区域 -->
-    <main class="likcc-announcement-list-main-content">
-        <div class="likcc-announcement-list-container">
+    <main class="likcc-announcement-main">
+        <div class="likcc-announcement-container">
 
 
-            <!-- 公告列表 -->
-            <div class="likcc-announcement-list" th:if="${announcements != null and #lists.size(announcements) > 0}">
-                <article th:each="announcement : ${announcements}" 
-                         th:class="'likcc-announcement-list-item' + (${announcement.spec.enablePinning} ? ' likcc-announcement-list-pinned' : '')"
-                         th:data-id="${announcement.metadata.name}">
-                    
-                    <!-- 置顶标识 -->
-                    <div th:if="${announcement.spec.enablePinning}" class="likcc-announcement-list-pinned-badge">
-                        <i class="ri-pushpin-2-fill"></i>
-                        置顶
-                    </div>
-                    
-                    <!-- 公告头部 -->
-                    <header class="likcc-announcement-list-item-header">
-                        <h2 class="likcc-announcement-list-item-title" th:text="${announcement.spec.title}">公告标题</h2>
-                        <div class="likcc-announcement-list-item-meta">
-                            <span class="likcc-announcement-list-meta-item">
-                                <i class="ri-time-line"></i>
-                                <span th:text="${#dates.format(announcement.metadata.creationTimestamp, 'yyyy-MM-dd')}">发布时间</span>
-                            </span>
+                        <!-- 公告文章列表 -->
+            <div class="likcc-announcement-articles" th:if="${announcements != null and #lists.size(announcements) > 0}">
+                <article class="likcc-announcement-article" th:each="announcement : ${announcements}" th:data-id="${announcement.metadata.name}">
+                    <a class="likcc-announcement-article__thumb" th:href="@{'/announcements/' + ${announcement.metadata.name}}" aria-label="查看详情">
+                        <img alt="封面" />
+                        <span class="likcc-announcement-article__pin" th:if="${announcement.spec.enablePinning}"><i class="ri-pushpin-2-fill"></i>置顶</span>
+                    </a>
+                    <div class="likcc-announcement-article__body">
+                        <h2 class="likcc-announcement-article__title">
+                            <a th:href="@{'/announcements/' + ${announcement.metadata.name}}" th:text="${announcement.spec.title}">公告标题</a>
+                        </h2>
+                        <div class="likcc-announcement-article__meta">
+                            <span class="likcc-announcement-article__date"><i class="ri-time-line"></i><span th:text="${#dates.format(announcement.metadata.creationTimestamp, 'yyyy-MM-dd')}">日期</span></span>
                         </div>
-                    </header>
-                    
-                    <!-- 公告内容 -->
-                    <div class="likcc-announcement-list-item-content" th:utext="${announcement.spec.content}">
-                        公告内容
-                    </div>
-                    
-
-                    
-                    <!-- 公告操作 -->
-                    <footer class="likcc-announcement-list-item-footer">
-                        <div class="likcc-announcement-list-item-actions">
-                            <a th:href="@{'/announcements/' + ${announcement.metadata.name}}" 
-                               class="likcc-announcement-list-action-button likcc-announcement-list-view-button">
-                                <i class="ri-eye-line"></i>
-                                查看详情
-                            </a>
-                            <button class="likcc-announcement-list-action-button likcc-announcement-list-share-button" 
-                                    th:data-announcement-id="${announcement.metadata.name}"
-                                    onclick="likccAnnouncementListShare(this.getAttribute('data-announcement-id'))">
-                                <i class="ri-share-line"></i>
-                                分享
-                            </button>
+                        <!-- 隐藏源内容，用于前端提取摘要与封面 -->
+                        <div class="likcc-announcement-article__source" th:utext="${announcement.spec.content}" style="display:none"></div>
+                        <p class="likcc-announcement-article__excerpt">加载中...</p>
+                        <div class="likcc-announcement-article__actions">
+                            <a class="likcc-announcement-article__btn likcc-announcement-article__btn--primary" th:href="@{'/announcements/' + ${announcement.metadata.name}}">阅读更多</a>
+                            <button class="likcc-announcement-article__btn" th:data-announcement-id="${announcement.metadata.name}"
+                                    onclick="likccAnnouncementListShare(this.getAttribute('data-announcement-id'))">分享</button>
                         </div>
-                    </footer>
+                    </div>
                 </article>
             </div>
 
@@ -132,9 +109,9 @@
     </main>
 
     <!-- 页面底部 -->
-    <footer class="likcc-announcement-list-footer-page">
-        <div class="likcc-announcement-list-container">
-            <p class="likcc-announcement-list-footer-text">
+    <footer class="likcc-announcement-footer">
+        <div class="likcc-announcement-container">
+            <p class="likcc-announcement-footer__text">
                 <i class="ri-heart-line"></i>
                 公告系统由 Halo 公告插件提供支持
             </p>

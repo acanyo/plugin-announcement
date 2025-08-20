@@ -563,3 +563,108 @@
         background: white;
     }
 } 
+
+/* 网格布局 */
+.likcc-announcement-list-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .likcc-announcement-list-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+    .likcc-announcement-list-grid { grid-template-columns: 1fr; }
+}
+
+/* 卡片 */
+.likcc-announcement-card {
+    position: relative;
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0,0,0,.06);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: likcc-announcement-fade-in .24s ease both;
+}
+
+.likcc-announcement-card__head { padding: 16px 16px 0 16px; }
+.likcc-announcement-card__title { font-size: 18px; font-weight: 700; color:#1d2129; margin:0; }
+.likcc-announcement-card__meta { display:flex; align-items:center; gap:6px; color:#86909c; font-size:12px; margin-top:8px; }
+.likcc-announcement-card__meta i { color:#a9b1bc; }
+.likcc-announcement-card__pin { position:absolute; right:12px; top:12px; background:#fff4ce; color:#7a5b00; border:1px solid #f5d776; padding:2px 8px; border-radius:999px; font-size:12px; display:flex; gap:6px; align-items:center; }
+.likcc-announcement-card--pinned { border-color:#f5d776; box-shadow: 0 6px 18px rgba(245,215,118,.25); }
+
+.likcc-announcement-card__content { position: relative; padding: 12px 16px 0 16px; }
+.likcc-announcement-card__excerpt { max-height: 120px; overflow: hidden; }
+.likcc-announcement-card__fade { position:absolute; left:0; right:0; bottom:56px; height:60px; background: linear-gradient(180deg, rgba(255,255,255,0) 0%, #fff 70%); pointer-events:none; }
+
+.likcc-announcement-card__actions { display:flex; gap:10px; padding: 12px 16px 16px 16px; margin-top: 8px; }
+.likcc-announcement-card__btn { height:34px; padding:0 14px; border-radius:8px; border:1px solid #e5e6eb; background:#fff; color:#4e5969; cursor:pointer; font-size:13px; }
+.likcc-announcement-card__btn:hover { border-color:#c9cdd4; }
+.likcc-announcement-card__btn--primary { background:#165dff; color:#fff; border-color:#165dff; }
+.likcc-announcement-card__btn--primary:hover { background:#3c79ff; border-color:#3c79ff; }
+
+@keyframes likcc-announcement-fade-in { from { opacity:0; transform: translateY(6px);} to { opacity:1; transform:none;} } 
+
+/* 暗色支持（可选：根元素添加 .dark 类） */
+.dark .likcc-announcement-list-header { background: linear-gradient(135deg, #1f2937 0%, #111827 100%); }
+.dark .likcc-announcement-card { background:#0b1020; border-color:#1f2937; box-shadow: 0 4px 14px rgba(0,0,0,.35);} 
+.dark .likcc-announcement-card__title { color:#e5e7eb; }
+.dark .likcc-announcement-card__meta { color:#9ca3af; }
+.dark .likcc-announcement-card__pin { background:#3a2c00; color:#ffd76d; border-color:#5a4300; }
+.dark .likcc-announcement-card__btn { background:#0f172a; color:#cbd5e1; border-color:#1f2937; }
+.dark .likcc-announcement-card__btn:hover { border-color:#334155; }
+.dark .likcc-announcement-card__btn--primary { background:#2563eb; border-color:#2563eb; }
+.dark .likcc-announcement-card__fade { background: linear-gradient(180deg, rgba(15,23,42,0) 0%, #0b1020 70%); }
+
+/* 交互动效 */
+.likcc-announcement-card:hover { transform: translateY(-2px); transition: transform .18s ease, box-shadow .18s ease; box-shadow: 0 8px 22px rgba(0,0,0,.12);} 
+.likcc-announcement-card__btn:active { transform: translateY(1px); } 
+
+/* 全局页面骨架 */
+.likcc-announcement-shell { background:#f7f8fa; color:#1d2129; }
+.dark .likcc-announcement-shell { background:#0b1020; color:#e5e7eb; }
+
+.likcc-announcement-container { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
+
+.likcc-announcement-hero { padding: 56px 0; background: linear-gradient(135deg, #eef2ff 0%, #eff6ff 100%); border-bottom:1px solid #eef2f7; }
+.likcc-announcement-hero__title { font-size: 28px; font-weight: 800; display:flex; align-items:center; gap:10px; color:#111827; }
+.likcc-announcement-hero__title i{ color:#2563eb; }
+.likcc-announcement-hero__subtitle { margin-top:6px; color:#6b7280; font-size:14px; }
+.dark .likcc-announcement-hero { background: linear-gradient(135deg, #0f172a 0%, #0b1020 100%); border-color:#141a2c; }
+.dark .likcc-announcement-hero__title { color:#f3f4f6; }
+.dark .likcc-announcement-hero__subtitle { color:#9ca3af; }
+
+.likcc-announcement-main { padding: 28px 0 36px; }
+
+.likcc-announcement-footer { padding: 24px 0; border-top:1px solid #eef2f7; background:#ffffff; }
+.likcc-announcement-footer__text { display:flex; align-items:center; gap:8px; justify-content:center; color:#6b7280; font-size:13px; }
+.dark .likcc-announcement-footer { background:#0b1020; border-color:#141a2c; }
+.dark .likcc-announcement-footer__text { color:#9ca3af; } 
+
+/* 文章式列表 */
+.likcc-announcement-articles { display:flex; flex-direction:column; gap:16px; }
+.likcc-announcement-article { display:flex; gap:16px; background:#fff; border:1px solid #e9ecef; border-radius:12px; padding:12px; align-items:stretch; }
+.likcc-announcement-article__thumb { width: 220px; min-width:220px; height: 132px; position:relative; border-radius:8px; overflow:hidden; background:#f2f3f5; display:block; }
+.likcc-announcement-article__thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+.likcc-announcement-article__pin { position:absolute; left:8px; top:8px; background:#fff4ce; color:#7a5b00; border:1px solid #f5d776; border-radius:999px; padding:2px 8px; font-size:12px; display:flex; gap:6px; align-items:center; }
+.likcc-announcement-article__body { flex:1; display:flex; flex-direction:column; min-width:0; }
+.likcc-announcement-article__title { margin:4px 0 6px; font-size:18px; font-weight:700; }
+.likcc-announcement-article__title a { color:#1d2129; text-decoration:none; }
+.likcc-announcement-article__title a:hover { text-decoration:underline; }
+.likcc-announcement-article__meta { color:#86909c; font-size:12px; display:flex; gap:12px; align-items:center; }
+.likcc-announcement-article__date i { margin-right:6px; color:#a9b1bc; }
+.likcc-announcement-article__excerpt { margin:10px 0; color:#4e5969; line-height:1.7; display:-webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow:hidden; }
+.likcc-announcement-article__actions { display:flex; gap:10px; margin-top:auto; }
+.likcc-announcement-article__btn { height:34px; padding:0 14px; border-radius:8px; border:1px solid #e5e6eb; background:#fff; color:#4e5969; cursor:pointer; font-size:13px; text-decoration:none; display:inline-flex; align-items:center; }
+.likcc-announcement-article__btn:hover { border-color:#c9cdd4; }
+.likcc-announcement-article__btn--primary { background:#165dff; color:#fff; border-color:#165dff; }
+
+@media (max-width: 768px) {
+  .likcc-announcement-article { flex-direction:column; }
+  .likcc-announcement-article__thumb { width:100%; min-width:unset; height: 180px; }
+} 

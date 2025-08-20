@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, shallowRef, onBeforeUnmount, onMounted, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { VPageHeader, VCard, VButton, Toast, VLoading } from "@halo-dev/components";
-import "@wangeditor/editor/dist/css/style.css";
-import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
+import HaloEditor from "@/editor/HaloEditor.vue";
 import { announcementV1alpha1Api, announcementApiClient } from "@/api";
 import type { Announcement } from "@/api/generated";
 import IconAnnouncementMegaphone from '~icons/streamline-plump/announcement-megaphone?width=1.2em&height=1.2em';
@@ -22,9 +21,8 @@ const confettiEnable = ref(false);
 const enablePopup = ref(false);
 const enablePinning = ref(false);
 
-// wangEditor state
-const editorRef = shallowRef();
-const html = ref("<p>这里是你的公告内容，支持<b>加粗</b>、<i>斜体</i>、图片、链接等富文本。</p>");
+// 编辑器内容（默认空）
+const html = ref("");
 
 // Loading state
 const isLoading = ref(false);
@@ -44,16 +42,6 @@ const goBack = () => {
 };
 
 const isSubmitting = ref(false);
-
-const handleCreated = (editor: any) => {
-  editorRef.value = editor;
-};
-
-onBeforeUnmount(() => {
-  const editor = editorRef.value;
-  if (editor == null) return;
-  editor.destroy();
-});
 
 // Load announcement data for editing
 const loadAnnouncement = async () => {
@@ -199,42 +187,16 @@ onMounted(() => {
     <VCard>
       <VLoading v-if="isLoading" />
       <div v-else class="editor-layout">
-        <!-- 左侧：主内容 -->
         <div class="main">
-          <div class="section">
-            <div class="section-title">基础信息</div>
-            <div class="form-row">
-              <label class="field-label">标题</label>
-              <input v-model="title" class="default-input" placeholder="请输入标题" />
-            </div>
-            <div class="form-row">
-              <label class="field-label">可见范围</label>
-              <select v-model="permissions" class="default-input">
-                <option value="loggedInUsers">登录用户</option>
-                <option value="nonLoggedInUsers">未登录用户</option>
-                <option value="everyone">所有人</option>
-                <option value="notShown">不显示</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="section">
-            <div class="section-title">公告内容</div>
-            <p class="section-desc">所见即所得，提交后将直接作为弹窗的 HTML 内容。</p>
-            <div class="wangeditor-box">
-              <Toolbar class="wangeditor-toolbar" :editor="editorRef" :defaultConfig="{ }" mode="default" />
-              <Editor
-                class="wangeditor-editor"
-                v-model="html"
-                :defaultConfig="{ placeholder: '请输入公告内容...' }"
-                mode="default"
-                @onCreated="handleCreated"
-              />
-            </div>
-          </div>
+          <HaloEditor
+            v-model:raw="html"
+            v-model:content="html"
+            v-model:title="title"
+            class="editor-full"
+          />
         </div>
 
-        <!-- 右侧：设置栏 -->
+        <!-- 右侧：设置栏（包含可见范围与显示位置等） -->
         <div class="aside">
           <div class="side-card">
             <div class="section-title">显示设置</div>
@@ -251,6 +213,15 @@ onMounted(() => {
               <select v-model="enablePinning" class="default-input">
                 <option :value="true">是</option>
                 <option :value="false">否</option>
+              </select>
+            </div>
+            <div class="form-row">
+              <label class="field-label">可见范围</label>
+              <select v-model="permissions" class="default-input">
+                <option value="loggedInUsers">登录用户</option>
+                <option value="nonLoggedInUsers">未登录用户</option>
+                <option value="everyone">所有人</option>
+                <option value="notShown">不显示</option>
               </select>
             </div>
             <div class="form-row">
@@ -298,7 +269,7 @@ onMounted(() => {
 
 <style scoped>
 /***** Layout *****/
-.editor-layout { display: grid; grid-template-columns: 1fr 320px; gap: 16px; }
+.editor-layout { display: grid; grid-template-columns: minmax(0,1fr) 260px; gap: 12px; }
 @media (max-width: 1024px) { .editor-layout { grid-template-columns: 1fr; } .aside { position: static; top: auto; } }
 .main { min-width: 0; }
 .aside { position: sticky; top: 16px; display: flex; flex-direction: column; gap: 12px; }
@@ -316,10 +287,8 @@ onMounted(() => {
 .default-input { width: 100%; height: 36px; border: 1px solid #e5e7eb; border-radius: 6px; padding: 6px 10px; background: #fff; }
 .default-input:focus { outline: none; border-color: #165dff; box-shadow: 0 0 0 3px rgba(22,93,255,0.12); }
 
-/***** wangEditor *****/
-.wangeditor-box { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
-.wangeditor-toolbar { border-bottom: 1px solid #e5e7eb; }
-.wangeditor-editor { height: 70vh; min-height: 420px; }
+/***** Editor *****/
+.editor-full { width: 100%; }
 
 /***** Header actions *****/
 .header-actions { display:flex; align-items:center; }

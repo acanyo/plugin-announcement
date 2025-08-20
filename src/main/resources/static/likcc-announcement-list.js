@@ -536,3 +536,84 @@
     };
 
 })(); 
+
+// UI 交互增强
+window.LikccAnnouncementListUI = (function(prev){
+  const api = prev || {};
+
+  function expand(card){
+    const excerpt = card.querySelector('.likcc-announcement-card__excerpt');
+    const fade = card.querySelector('.likcc-announcement-card__fade');
+    if (excerpt){ excerpt.style.maxHeight = 'unset'; }
+    if (fade){ fade.style.display = 'none'; }
+    card.classList.add('likcc-announcement-card--expanded');
+  }
+
+  function collapse(card){
+    const excerpt = card.querySelector('.likcc-announcement-card__excerpt');
+    const fade = card.querySelector('.likcc-announcement-card__fade');
+    if (excerpt){ excerpt.style.maxHeight = '120px'; }
+    if (fade){ fade.style.display = ''; }
+    card.classList.remove('likcc-announcement-card--expanded');
+  }
+
+  function toggle(btn){
+    const card = btn.closest('.likcc-announcement-card');
+    if (!card) return;
+    const expanded = card.classList.contains('likcc-announcement-card--expanded');
+    if (expanded){
+      collapse(card);
+      btn.textContent = btn.getAttribute('data-collapsed-text') || '展开';
+    } else {
+      expand(card);
+      btn.textContent = btn.getAttribute('data-expanded-text') || '收起';
+    }
+  }
+
+  // 初始动画与内容裁剪
+  document.addEventListener('DOMContentLoaded', function(){
+    const cards = document.querySelectorAll('.likcc-announcement-card');
+    cards.forEach((c, idx)=>{
+      c.style.animationDelay = (idx * 40)+'ms';
+      // 内容首段裁剪：若HTML过长，保持前几段，剩余靠CSS渐隐
+      const excerpt = c.querySelector('.likcc-announcement-card__excerpt');
+      if (excerpt){
+        // 可按需添加更智能的裁剪，这里保留为CSS max-height 方案
+      }
+    });
+  });
+
+  // 文章式列表：从富文本提取第一张图片与摘要
+  document.addEventListener('DOMContentLoaded', function(){
+    const items = document.querySelectorAll('.likcc-announcement-article');
+    items.forEach(item => {
+      try {
+        const source = item.querySelector('.likcc-announcement-article__source');
+        const thumbImg = item.querySelector('.likcc-announcement-article__thumb img');
+        const excerptEl = item.querySelector('.likcc-announcement-article__excerpt');
+        if (!source || (!thumbImg && !excerptEl)) return;
+
+        const tmp = document.createElement('div');
+        tmp.innerHTML = source.innerHTML;
+        // 抓第一张图片
+        const firstImg = tmp.querySelector('img');
+        if (firstImg && thumbImg){
+          const src = firstImg.getAttribute('src') || firstImg.getAttribute('data-src');
+          if (src) thumbImg.src = src;
+        } else if (thumbImg){
+          // 没图用占位
+          thumbImg.style.display = 'none';
+        }
+        // 提取纯文本摘要
+        const text = tmp.textContent || '';
+        const clean = text.replace(/\s+/g, ' ').trim();
+        if (excerptEl){
+          excerptEl.textContent = clean.length > 120 ? clean.slice(0, 118) + '…' : clean;
+        }
+      } catch(e){ /* 忽略单条渲染错误 */ }
+    });
+  });
+
+  api.toggle = toggle;
+  return api;
+})(window.LikccAnnouncementListUI); 
