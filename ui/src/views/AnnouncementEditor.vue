@@ -6,6 +6,8 @@ import { announcementV1alpha1Api, announcementApiClient } from "@/api";
 import type { Announcement } from "@/api/generated";
 import IconAnnouncementMegaphone from '~icons/streamline-plump/announcement-megaphone?width=1.2em&height=1.2em';
 import { useRoute } from "vue-router";
+import { axiosInstance } from "@halo-dev/api-client";
+import type { AxiosRequestConfig } from "axios";
 
 const route = useRoute();
 const isEditMode = computed(() => route.name === "AnnouncementEdit");
@@ -26,6 +28,20 @@ const html = ref("");
 
 // Loading state
 const isLoading = ref(false);
+
+async function handleUploadImage(file: File, options?: AxiosRequestConfig) {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("policyName", "default-policy");
+  const { data } = await axiosInstance.post(
+    "/apis/api.console.halo.run/v1alpha1/attachments/upload",
+    form,
+    {
+      ...options,
+    }
+  );
+  return data;
+}
 
 function slugify(input: string): string {
   return input
@@ -187,12 +203,14 @@ onMounted(() => {
     <VCard>
       <VLoading v-if="isLoading" />
       <div v-else class="editor-layout">
+        <!-- 左侧：仅显示编辑器（标题使用 Halo 编辑器内置输入） -->
         <div class="main">
           <HaloEditor
             v-model:raw="html"
             v-model:content="html"
             v-model:title="title"
-            class="editor-full"
+            :upload-image="handleUploadImage"
+            class="editor-full h-full flex flex-1 flex-shrink flex-col"
           />
         </div>
 
