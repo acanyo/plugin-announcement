@@ -1,5 +1,5 @@
 /* 通用样式重置 - 所有 likcc- 开头的元素 */
-[class*="likcc-"] {
+[class*="likcc-likcc-notification"] {
     all: revert;
     box-sizing: border-box;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
