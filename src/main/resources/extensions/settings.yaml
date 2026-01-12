@@ -4,6 +4,36 @@ metadata:
   name: plugin-announcement-settings
 spec:
   forms:
+    - group: types
+      label: 公告类型
+      formSchema:
+        - $formkit: array
+          name: announcementTypes
+          label: 公告类型列表
+          addLabel: 添加类型
+          min: 0
+          value:
+            - displayName: 通知
+              color: "#3b82f6"
+            - displayName: 更新
+              color: "#22c55e"
+            - displayName: 警告
+              color: "#f59e0b"
+            - displayName: 重要
+              color: "#ef4444"
+          itemLabels:
+            - type: text
+              label: $value.displayName
+          children:
+            - $formkit: text
+              name: displayName
+              label: 类型名称
+              placeholder: 如 通知
+              validation: required
+            - $formkit: color
+              name: color
+              label: 类型颜色
+              value: "#3b82f6"
     - group: basic
       label: 基本设置
       formSchema:

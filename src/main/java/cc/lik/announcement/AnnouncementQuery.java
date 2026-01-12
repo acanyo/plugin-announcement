@@ -1,9 +1,9 @@
 package cc.lik.announcement;
 
 import static org.springdoc.core.fn.builders.parameter.Builder.parameterBuilder;
-import static run.halo.app.extension.index.query.QueryFactory.contains;
-import static run.halo.app.extension.index.query.QueryFactory.equal;
-import static run.halo.app.extension.index.query.QueryFactory.or;
+import static run.halo.app.extension.index.query.Queries.contains;
+import static run.halo.app.extension.index.query.Queries.equal;
+import static run.halo.app.extension.index.query.Queries.or;
 import static run.halo.app.extension.router.QueryParamBuildUtil.sortParameter;
 
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -34,6 +34,17 @@ public class AnnouncementQuery extends SortableRequest {
         return queryParams.getFirst("announcementSpec.permissions");
     }
 
+    @Nullable
+    public Boolean getPopup() {
+        String popup = queryParams.getFirst("popup");
+        return popup != null ? Boolean.parseBoolean(popup) : null;
+    }
+
+    @Nullable
+    public String getType() {
+        return queryParams.getFirst("type");
+    }
+
     @Override
     public ListOptions toListOptions() {
         var builder = ListOptions.builder(super.toListOptions());
@@ -49,6 +60,14 @@ public class AnnouncementQuery extends SortableRequest {
         Optional.ofNullable(getPermissions())
             .filter(StringUtils::isNotBlank)
             .ifPresent(per -> builder.andQuery(equal("announcementSpec.permissions", per)));
+
+        Optional.ofNullable(getPopup())
+            .filter(popup -> popup)
+            .ifPresent(popup -> builder.andQuery(equal("announcementSpec.enablePopup", "true")));
+
+        Optional.ofNullable(getType())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(type -> builder.andQuery(equal("announcementSpec.type", type)));
 
         return builder.build();
     }
@@ -66,6 +85,18 @@ public class AnnouncementQuery extends SortableRequest {
                 .in(ParameterIn.QUERY)
                 .name("announcementSpec.permissions")
                 .description("Announcement permissions.")
+                .implementation(String.class)
+                .required(false))
+            .parameter(parameterBuilder()
+                .in(ParameterIn.QUERY)
+                .name("popup")
+                .description("Filter announcements with popup enabled.")
+                .implementation(Boolean.class)
+                .required(false))
+            .parameter(parameterBuilder()
+                .in(ParameterIn.QUERY)
+                .name("type")
+                .description("Filter announcements by type.")
                 .implementation(String.class)
                 .required(false));
     }

@@ -27,6 +27,9 @@ public class Announcement extends AbstractExtension {
         @Schema(requiredMode = REQUIRED)
         private String title;
 
+        @Schema(description = "公告类型")
+        private String type;
+
         @Schema(requiredMode = REQUIRED, defaultValue = "pending")
         private ViewPermissions permissions;
 

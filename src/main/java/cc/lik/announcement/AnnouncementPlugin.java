@@ -1,11 +1,10 @@
 package cc.lik.announcement;
 
-import static run.halo.app.extension.index.IndexAttributeFactory.simpleAttribute;
-
 import cc.lik.announcement.extension.Announcement;
+import java.util.Optional;
 import org.springframework.stereotype.Component;
 import run.halo.app.extension.SchemeManager;
-import run.halo.app.extension.index.IndexSpec;
+import run.halo.app.extension.index.IndexSpecs;
 import run.halo.app.plugin.BasePlugin;
 import run.halo.app.plugin.PluginContext;
 
@@ -28,51 +27,43 @@ public class AnnouncementPlugin extends BasePlugin {
     @Override
     public void start() {
         schemeManager.register(Announcement.class, indexSpecs -> {
-            indexSpecs.add(new IndexSpec()
-                .setName("announcementSpec.title")
-                .setIndexFunc(simpleAttribute(Announcement.class,
-                    selectedComment -> selectedComment.getAnnouncementSpec().getTitle())
-                ));
-            indexSpecs.add(new IndexSpec()
-                .setName("announcementSpec.permissions")
-                .setIndexFunc(simpleAttribute(Announcement.class, announcement -> {
-                    var permission = announcement.getAnnouncementSpec().getPermissions();
-                    return permission == null ? null : permission.name();
-                })));
-            indexSpecs.add(new IndexSpec()
-                .setName("announcementSpec.content")
-                .setIndexFunc(simpleAttribute(Announcement.class,
-                    selectedComment -> selectedComment.getAnnouncementSpec().getContent())
-                ));
-            indexSpecs.add(new IndexSpec()
-                .setName("announcementSpec.position")
-                .setIndexFunc(simpleAttribute(Announcement.class,
-                    selectedComment -> selectedComment.getAnnouncementSpec().getPosition())
-                ));
-            indexSpecs.add(new IndexSpec()
-                .setName("announcementSpec.autoClose")
-                .setIndexFunc(simpleAttribute(Announcement.class,
-                    selectedComment -> String.valueOf(
-                        selectedComment.getAnnouncementSpec().getAutoClose()))
-                ));
-            indexSpecs.add(new IndexSpec()
-                .setName("announcementSpec.closeOnClickOutside")
-                .setIndexFunc(simpleAttribute(Announcement.class,
-                    selectedComment -> String.valueOf(
-                        selectedComment.getAnnouncementSpec().getCloseOnClickOutside()))
-                ));
-            indexSpecs.add(new IndexSpec()
-                .setName("announcementSpec.confettiEnable")
-                .setIndexFunc(simpleAttribute(Announcement.class,
-                    selectedComment -> String.valueOf(
-                        selectedComment.getAnnouncementSpec().getConfettiEnable()))
-                ));
-            indexSpecs.add(new IndexSpec()
-                .setName("announcementSpec.enablePopup")
-                .setIndexFunc(simpleAttribute(Announcement.class,
-                    selectedComment -> String.valueOf(
-                        selectedComment.getAnnouncementSpec().getEnablePopup()))
-                ));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.title", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(Announcement.AnnouncementSpec::getTitle)
+                    .orElse(null)));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.permissions", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(Announcement.AnnouncementSpec::getPermissions)
+                    .map(Enum::name)
+                    .orElse(null)));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.content", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(Announcement.AnnouncementSpec::getContent)
+                    .orElse(null)));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.position", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(Announcement.AnnouncementSpec::getPosition)
+                    .orElse(null)));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.autoClose", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(spec -> String.valueOf(spec.getAutoClose()))
+                    .orElse(null)));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.closeOnClickOutside", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(spec -> String.valueOf(spec.getCloseOnClickOutside()))
+                    .orElse(null)));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.confettiEnable", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(spec -> String.valueOf(spec.getConfettiEnable()))
+                    .orElse(null)));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.enablePopup", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(spec -> String.valueOf(spec.getEnablePopup()))
+                    .orElse(null)));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.type", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(Announcement.AnnouncementSpec::getType)
+                    .orElse(null)));
         });
     }
 

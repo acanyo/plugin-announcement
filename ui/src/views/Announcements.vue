@@ -79,10 +79,9 @@ const {
     total.value = data.total;
     return data;
   },
-  refetchInterval: (query) => {
-    const data = (query as any).state?.data as AnnouncementList | undefined;
+  refetchInterval: (data) => {
     if (!data) return false;
-    const hasDeletingAnnouncement = data.items?.some(
+    const hasDeletingAnnouncement = (data as AnnouncementList)?.items?.some(
       (ann: Announcement) => (ann as any)?.metadata?.deletionTimestamp,
     );
     return hasDeletingAnnouncement ? 1000 : false;
@@ -148,10 +147,6 @@ const goCreate = () => {
     window.location.href = "/console/tools/announcements/new";
   }
 };
-
-const goFrontend = () => {
-  window.open("/announcements", "_blank");
-};
 </script>
 <template>
   <VPageHeader title="公告管理">
@@ -159,7 +154,6 @@ const goFrontend = () => {
       <IconAnnouncementMegaphone class="mr-2 self-center" />
     </template>
     <template #actions>
-      <VButton type="default" @click="goFrontend"><IconExternalLinkLine /> 跳转前台</VButton>
       <VButton type="secondary" @click="goCreate">新建公告</VButton>
     </template>
   </VPageHeader>

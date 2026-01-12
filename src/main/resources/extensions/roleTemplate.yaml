@@ -36,3 +36,21 @@ rules:
   - apiGroups: [ "api.announcement.lik.cc" ]
     resources: [ "announcement" ]
     verbs: [ "list" ]
+
+---
+
+apiVersion: v1alpha1
+kind: Role
+metadata:
+  name: role-template-anonymous-announcement
+  labels:
+    halo.run/hidden: "true"
+    halo.run/role-template: "true"
+    rbac.authorization.halo.run/aggregate-to-anonymous: "true"
+  annotations:
+    rbac.authorization.halo.run/module: "公告"
+    rbac.authorization.halo.run/display-name: "匿名访问"
+rules:
+  - apiGroups: [ "public.announcement.lik.cc" ]
+    resources: [ "*" ]
+    verbs: [ "get", "list" ]
