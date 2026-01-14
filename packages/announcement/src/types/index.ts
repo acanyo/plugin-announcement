@@ -15,6 +15,21 @@ export interface Announcement {
     closeOnClickOutside: boolean;
     popupInterval: number;
     confettiEnable: boolean;
+    urlPatterns?: string;
+    // 弹窗图标配置
+    popupIcon?: string;
+    popupIconBgColor?: string;
+    // 按钮配置
+    primaryButtonText?: string;
+    primaryButtonColor?: string;
+    primaryButtonAction?: string;
+    primaryButtonUrl?: string;
+    primaryButtonCallback?: string;
+    secondaryButtonText?: string;
+    secondaryButtonColor?: string;
+    secondaryButtonAction?: string;
+    secondaryButtonUrl?: string;
+    secondaryButtonCallback?: string;
   };
 }
 

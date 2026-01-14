@@ -7,6 +7,7 @@ import static run.halo.app.extension.index.query.Queries.or;
 import static run.halo.app.extension.router.QueryParamBuildUtil.sortParameter;
 
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springdoc.core.fn.builders.operation.Builder;
@@ -34,6 +35,15 @@ public class AnnouncementQuery extends SortableRequest {
         return queryParams.getFirst("announcementSpec.permissions");
     }
 
+    /**
+     * 获取允许的权限列表（用于公开 API 根据登录状态过滤）
+     */
+    @Nullable
+    public List<String> getAllowedPermissions() {
+        List<String> perms = queryParams.get("allowedPermissions");
+        return perms != null && !perms.isEmpty() ? perms : null;
+    }
+
     @Nullable
     public Boolean getPopup() {
         String popup = queryParams.getFirst("popup");
@@ -43,6 +53,16 @@ public class AnnouncementQuery extends SortableRequest {
     @Nullable
     public String getType() {
         return queryParams.getFirst("type");
+    }
+
+    @Nullable
+    public String getEnablePinning() {
+        return queryParams.getFirst("announcementSpec.enablePinning");
+    }
+
+    @Nullable
+    public String getEnablePopup() {
+        return queryParams.getFirst("announcementSpec.enablePopup");
     }
 
     @Override
@@ -68,6 +88,17 @@ public class AnnouncementQuery extends SortableRequest {
         Optional.ofNullable(getType())
             .filter(StringUtils::isNotBlank)
             .ifPresent(type -> builder.andQuery(equal("announcementSpec.type", type)));
+
+        Optional.ofNullable(getEnablePinning())
+            .filter(StringUtils::isNotBlank)
+            .ifPresent(pinning -> builder.andQuery(equal("announcementSpec.enablePinning", pinning)));
+
+        // 仅当不是 popup=true 请求时才使用 enablePopup 筛选参数
+        if (getPopup() == null || !getPopup()) {
+            Optional.ofNullable(getEnablePopup())
+                .filter(StringUtils::isNotBlank)
+                .ifPresent(popup -> builder.andQuery(equal("announcementSpec.enablePopup", popup)));
+        }
 
         return builder.build();
     }
@@ -97,6 +128,18 @@ public class AnnouncementQuery extends SortableRequest {
                 .in(ParameterIn.QUERY)
                 .name("type")
                 .description("Filter announcements by type.")
+                .implementation(String.class)
+                .required(false))
+            .parameter(parameterBuilder()
+                .in(ParameterIn.QUERY)
+                .name("announcementSpec.enablePinning")
+                .description("Filter announcements by pinning status.")
+                .implementation(String.class)
+                .required(false))
+            .parameter(parameterBuilder()
+                .in(ParameterIn.QUERY)
+                .name("announcementSpec.enablePopup")
+                .description("Filter announcements by popup status.")
                 .implementation(String.class)
                 .required(false));
     }

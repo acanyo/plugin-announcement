@@ -7,7 +7,7 @@ metadata:
   name: announcement
 spec:
   enabled: true
-  requires: ">=2.22.0"
+  requires: ">=2.22.8"
   author:
     name: Handsome
     website: https://www.lik.cc
@@ -16,7 +16,7 @@ spec:
   repo: https://github.com/acanyo/plugin-announcement
   issues: https://github.com/acanyo/plugin-announcement/issues
   displayName: "公告插件"
-  description: "为你的Halo2模板增加一个弹窗公告功能"
+  description: "支持公告列表展示、弹窗通知、置顶、权限控制、礼花效果等功能"
   settingName: plugin-announcement-settings
   configMapName: plugin-announcement-configMap
   license:

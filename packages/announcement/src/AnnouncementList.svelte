@@ -32,7 +32,9 @@
     }
     // 从公开 API 获取
     try {
-      const r = await fetch("http://localhost:8090/apis/public.announcement.lik.cc/v1alpha1/types");
+      const r = await fetch("/apis/public.announcement.lik.cc/v1alpha1/types", {
+        credentials: "same-origin"
+      });
       if (r.ok) {
         types = await r.json();
       }
@@ -47,15 +49,15 @@
   async function load(p: number = 1) {
     loading = true;
     try {
-      let url = `http://localhost:8090/apis/public.announcement.lik.cc/v1alpha1/announcements?page=${p}&size=${pageSize}`;
+      let url = `/apis/public.announcement.lik.cc/v1alpha1/announcements?page=${p}&size=${pageSize}`;
       if (activeType) url += `&type=${encodeURIComponent(activeType)}`;
-      const r = await fetch(url);
+      const r = await fetch(url, { credentials: "same-origin" });
       const d = await r.json();
       list = d.items || [];
       total = d.total || 0;
-      totalPages = d.totalPages || 1;
+      totalPages = Math.ceil(total / pageSize) || 1;
       page = p;
-    } catch { list = []; total = 0; }
+    } catch { list = []; total = 0; totalPages = 1; }
     loading = false;
   }
 
@@ -114,8 +116,17 @@
     {:else}
       {#each list as a}
         {@const typeInfo = getTypeInfo(a.announcementSpec?.type)}
+        {@const isPinned = a.announcementSpec?.enablePinning}
         <button class="likcc-ann__row" onclick={() => open(a)}>
           <span class="likcc-ann__content">
+            {#if isPinned}
+              <span class="likcc-ann__pin" title="置顶">
+                <svg viewBox="0 0 1024 1024" fill="currentColor" width="14" height="14">
+                  <path d="M820.736 230.4H201.728c-18.432 0-33.28-14.848-33.28-33.28s14.848-33.28 33.28-33.28h619.008c18.432 0 33.28 14.848 33.28 33.28s-14.848 33.28-33.28 33.28zM511.488 878.08c-18.432 0-33.28-14.848-33.28-33.28V368.128c0-18.432 14.848-33.28 33.28-33.28s33.28 14.848 33.28 33.28V844.8c0 18.432-14.848 33.28-33.28 33.28z"/>
+                  <path d="M673.28 549.376c-8.704 0-16.896-3.072-23.552-9.728l-138.24-138.24-138.24 138.24c-12.8 12.8-34.304 12.8-47.104 0-12.8-12.8-12.8-34.304 0-47.104l161.792-161.792c12.8-12.8 34.304-12.8 47.104 0l161.792 161.792c12.8 12.8 12.8 34.304 0 47.104-6.656 6.144-14.848 9.728-23.552 9.728z"/>
+                </svg>
+              </span>
+            {/if}
             {#if typeInfo}
               <span class="likcc-ann__type" style="color: {typeInfo.color}">【{typeInfo.displayName}】</span>
             {/if}
@@ -139,8 +150,15 @@
 
 <!-- 详情弹窗 -->
 {#if show && current}
-  <div class="likcc-ann-modal__overlay" onclick={close} role="dialog" aria-modal="true">
-    <div class="likcc-ann-modal" onclick={e => e.stopPropagation()}>
+  <div 
+    class="likcc-ann-modal__overlay" 
+    onclick={close} 
+    onkeydown={e => e.key === 'Escape' && close()}
+    role="dialog" 
+    aria-modal="true"
+    tabindex="-1"
+  >
+    <div class="likcc-ann-modal" onclick={e => e.stopPropagation()} role="document">
       <div class="likcc-ann-modal__header">
         <h2 class="likcc-ann-modal__title">{current.announcementSpec?.title}</h2>
         <span class="likcc-ann-modal__date">{fmt(current.metadata?.creationTimestamp)}</span>
@@ -243,6 +261,14 @@
   .likcc-ann__type {
     flex-shrink: 0;
     font-weight: 500;
+  }
+
+  .likcc-ann__pin {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    margin-right: 6px;
+    color: #f59e0b;
   }
 
   .likcc-ann__title {

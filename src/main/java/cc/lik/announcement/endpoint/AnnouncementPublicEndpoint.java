@@ -5,12 +5,12 @@ import static org.springdoc.core.fn.builders.apiresponse.Builder.responseBuilder
 import cc.lik.announcement.AnnouncementQuery;
 import cc.lik.announcement.extension.Announcement;
 import cc.lik.announcement.service.AnnouncementService;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.webflux.core.fn.SpringdocRouteBuilder;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -82,7 +82,38 @@ public class AnnouncementPublicEndpoint implements CustomEndpoint {
 
     Mono<ServerResponse> listAnnouncements(ServerRequest request) {
         AnnouncementQuery query = new AnnouncementQuery(request);
-        return announcementSvc.listAnnouncement(query)
+        Boolean isPopupRequest = query.getPopup();
+        
+        // 判断用户是否登录
+        return ReactiveSecurityContextHolder.getContext()
+            .map(ctx -> ctx.getAuthentication() != null 
+                && ctx.getAuthentication().isAuthenticated()
+                && !"anonymousUser".equals(ctx.getAuthentication().getPrincipal()))
+            .defaultIfEmpty(false)
+            .flatMap(isLoggedIn -> {
+                // 根据登录状态确定允许的权限
+                List<String> allowedPerms;
+                if (isPopupRequest != null && isPopupRequest) {
+                    // 弹窗请求：严格按登录状态过滤
+                    // 登录用户: everyone, loggedInUsers（不弹 nonLoggedInUsers）
+                    // 未登录用户: everyone, nonLoggedInUsers（不弹 loggedInUsers）
+                    if (isLoggedIn) {
+                        allowedPerms = List.of("everyone", "loggedInUsers");
+                    } else {
+                        allowedPerms = List.of("everyone", "nonLoggedInUsers");
+                    }
+                } else {
+                    // 列表请求：登录用户能看到所有（除了 notShown）
+                    // 登录用户: everyone, loggedInUsers, nonLoggedInUsers
+                    // 未登录用户: everyone, nonLoggedInUsers
+                    if (isLoggedIn) {
+                        allowedPerms = List.of("everyone", "loggedInUsers", "nonLoggedInUsers");
+                    } else {
+                        allowedPerms = List.of("everyone", "nonLoggedInUsers");
+                    }
+                }
+                return announcementSvc.listAnnouncementByPermissions(query, allowedPerms);
+            })
             .flatMap(announcements -> ServerResponse.ok().bodyValue(announcements));
     }
 

@@ -60,6 +60,10 @@ public class AnnouncementPlugin extends BasePlugin {
                 .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
                     .map(spec -> String.valueOf(spec.getEnablePopup()))
                     .orElse(null)));
+            indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.enablePinning", String.class)
+                .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
+                    .map(spec -> String.valueOf(spec.getEnablePinning()))
+                    .orElse(null)));
             indexSpecs.add(IndexSpecs.<Announcement, String>single("announcementSpec.type", String.class)
                 .indexFunc(item -> Optional.ofNullable(item.getAnnouncementSpec())
                     .map(Announcement.AnnouncementSpec::getType)

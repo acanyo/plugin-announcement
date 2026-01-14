@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from "vue";
-import { VPageHeader, VCard, VButton, Toast, VLoading, VModal, VSpace } from "@halo-dev/components";
+import { VPageHeader, VButton, Toast, VLoading, VSpace, VCard, VTabbar } from "@halo-dev/components";
 import HaloEditor from "@/editor/HaloEditor.vue";
 import { announcementV1alpha1Api, announcementApiClient } from "@/api";
 import type { Announcement } from "@/api/generated";
 import IconAnnouncementMegaphone from '~icons/streamline-plump/announcement-megaphone?width=1.2em&height=1.2em';
-import IconSettings from '~icons/tabler/settings';
 import { useRoute } from "vue-router";
 import { axiosInstance } from "@halo-dev/api-client";
 import type { AxiosRequestConfig } from "axios";
@@ -14,188 +13,37 @@ const route = useRoute();
 const isEditMode = computed(() => route.name === "AnnouncementEdit");
 const announcementName = computed(() => route.params.name as string);
 
+const activeTab = ref("basic");
 const title = ref("");
 const type = ref("");
 const permissions = ref("everyone");
+const enablePopup = ref(false);
+const enablePinning = ref(false);
 const position = ref("center");
 const autoClose = ref(0);
 const closeOnClickOutside = ref(true);
 const popupInterval = ref(0);
 const confettiEnable = ref(false);
-const enablePopup = ref(false);
-const enablePinning = ref(false);
-
-// 编辑器内容
+const popupIcon = ref("");
+const popupIconBgColor = ref("#60a5fa");
+const primaryButtonText = ref("确认");
+const primaryButtonColor = ref("#3b82f6");
+const primaryButtonAction = ref("closeNotice");
+const primaryButtonUrl = ref("");
+const primaryButtonCallback = ref("");
+const secondaryButtonText = ref("关闭");
+const secondaryButtonColor = ref("#6b7280");
+const secondaryButtonAction = ref("closeNotice");
+const secondaryButtonUrl = ref("");
+const secondaryButtonCallback = ref("");
+const urlPatterns = ref("");
 const html = ref("");
-
-// UI 状态
 const isLoading = ref(false);
 const isSubmitting = ref(false);
-const settingsModalVisible = ref(false);
 
-// 公告类型列表
-interface AnnouncementType {
-  displayName: string;
-  color: string;
-}
+interface AnnouncementType { displayName: string; color: string; }
 const announcementTypes = ref<AnnouncementType[]>([]);
 
-async function loadAnnouncementTypes() {
-  try {
-    const { data } = await axiosInstance.get("/api/v1alpha1/configmaps/plugin-announcement-configMap");
-    const typesConfig = data?.data?.types;
-    if (typesConfig) {
-      const parsed = JSON.parse(typesConfig);
-      announcementTypes.value = parsed.announcementTypes || [];
-    }
-  } catch (e) {
-    console.error("Failed to load announcement types:", e);
-  }
-}
-
-const typeOptions = computed(() => {
-  const options = [{ label: "无", value: "" }];
-  announcementTypes.value.forEach(t => {
-    options.push({ label: t.displayName, value: t.displayName });
-  });
-  return options;
-});
-
-async function handleUploadImage(file: File, options?: AxiosRequestConfig) {
-  const form = new FormData();
-  form.append("file", file);
-  form.append("policyName", "default-policy");
-  const { data } = await axiosInstance.post(
-    "/apis/api.console.halo.run/v1alpha1/attachments/upload",
-    form,
-    { ...options }
-  );
-  return data;
-}
-
-function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9\u4e00-\u9fa5\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
-
-const goBack = () => {
-  if (window.history.length > 1) window.history.back();
-  else window.location.href = "/console/tools/announcements";
-};
-
-const loadAnnouncement = async () => {
-  if (!isEditMode.value || !announcementName.value) return;
-
-  try {
-    isLoading.value = true;
-    const { data } = await announcementApiClient.getAnnouncementByName({ name: announcementName.value });
-
-    title.value = data.announcementSpec.title || "";
-    type.value = (data.announcementSpec as any).type || "";
-    permissions.value = data.announcementSpec.permissions || "everyone";
-    position.value = data.announcementSpec.position || "center";
-    autoClose.value = data.announcementSpec.autoClose || 0;
-    closeOnClickOutside.value = data.announcementSpec.closeOnClickOutside ?? true;
-    popupInterval.value = data.announcementSpec.popupInterval || 0;
-    confettiEnable.value = data.announcementSpec.confettiEnable ?? false;
-    enablePopup.value = (data.announcementSpec as any).enablePopup ?? false;
-    enablePinning.value = (data.announcementSpec as any).enablePinning ?? false;
-    html.value = data.announcementSpec.content || "";
-  } catch (e) {
-    console.error("Failed to load announcement:", e);
-    Toast.error("加载公告失败");
-  } finally {
-    isLoading.value = false;
-  }
-};
-
-const handleSubmit = async () => {
-  if (!title.value.trim()) return Toast.warning("请输入标题");
-  if (!html.value.trim()) return Toast.warning("请输入公告内容");
-
-  // 弹窗唯一性校验
-  if (enablePopup.value) {
-    try {
-      const { data } = await announcementApiClient.listAnnouncements({
-        page: 1,
-        size: 100,
-        sort: undefined,
-        keyword: undefined,
-        announcementSpecPermissions: undefined
-      });
-
-      const otherEnabledAnnouncements = data.items.filter(
-        (announcement: Announcement) =>
-          announcement.metadata.name !== announcementName.value &&
-          (announcement.announcementSpec as any).enablePopup === true
-      );
-
-      if (otherEnabledAnnouncements.length > 0) {
-        Toast.error(`全局只能存在一个启用的弹窗！当前检测到 ${otherEnabledAnnouncements.length} 个其他已启用的弹窗，请先禁用后再保存。`);
-        return;
-      }
-    } catch (e) {
-      console.error("唯一性校验失败:", e);
-      Toast.error("无法完成唯一性校验，请重试");
-      return;
-    }
-  }
-
-  try {
-    isSubmitting.value = true;
-
-    const announcementSpec = {
-      title: title.value,
-      type: type.value || undefined,
-      permissions: permissions.value as any,
-      content: html.value,
-      position: position.value,
-      autoClose: Number(autoClose.value || 0),
-      closeOnClickOutside: Boolean(closeOnClickOutside.value),
-      popupInterval: Number(popupInterval.value || 0),
-      confettiEnable: Boolean(confettiEnable.value),
-      enablePopup: Boolean(enablePopup.value),
-      enablePinning: Boolean(enablePinning.value),
-    };
-
-    if (isEditMode.value) {
-      const { data } = await announcementApiClient.getAnnouncementByName({ name: announcementName.value });
-      await announcementV1alpha1Api.updateAnnouncement({
-        name: announcementName.value,
-        announcement: { ...data, announcementSpec } as any
-      });
-      Toast.success("更新成功");
-    } else {
-      await announcementV1alpha1Api.createAnnouncement({
-        announcement: {
-          apiVersion: "announcement.lik.cc/v1alpha1",
-          kind: "Announcement",
-          metadata: { name: slugify(title.value) || `announcement-${Date.now()}` },
-          announcementSpec,
-        } as any
-      });
-      Toast.success("创建成功");
-    }
-
-    goBack();
-  } catch (e) {
-    console.error(e);
-    Toast.error(isEditMode.value ? "更新失败" : "创建失败");
-  } finally {
-    isSubmitting.value = false;
-  }
-};
-
-onMounted(() => {
-  loadAnnouncementTypes();
-  loadAnnouncement();
-});
-
-// 设置项配置
 const permissionOptions = [
   { label: "登录用户", value: "loggedInUsers" },
   { label: "未登录用户", value: "nonLoggedInUsers" },
@@ -210,6 +58,163 @@ const positionOptions = [
   { label: "左上角", value: "left-top" },
   { label: "右上角", value: "right-top" },
 ];
+
+const buttonActionOptions = [
+  { label: "关闭公告", value: "closeNotice" },
+  { label: "跳转链接", value: "jump" },
+  { label: "确认后跳转", value: "confirmJump" },
+  { label: "JS回调", value: "callback" },
+];
+
+async function loadAnnouncementTypes() {
+  try {
+    const { data } = await axiosInstance.get("/api/v1alpha1/configmaps/plugin-announcement-configMap");
+    const typesConfig = data?.data?.types;
+    if (typesConfig) {
+      announcementTypes.value = JSON.parse(typesConfig).announcementTypes || [];
+    }
+  } catch (e) { console.error(e); }
+}
+
+const typeOptions = computed(() => {
+  const opts = [{ label: "无", value: "" }];
+  announcementTypes.value.forEach(t => opts.push({ label: t.displayName, value: t.displayName }));
+  return opts;
+});
+
+async function handleUploadImage(file: File, options?: AxiosRequestConfig) {
+  const form = new FormData();
+  form.append("file", file);
+  form.append("policyName", "default-policy");
+  const { data } = await axiosInstance.post("/apis/api.console.halo.run/v1alpha1/attachments/upload", form, { ...options });
+  return data;
+}
+
+function slugify(input: string): string {
+  return input.toLowerCase().trim().replace(/[^a-z0-9\u4e00-\u9fa5\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+}
+
+const goBack = () => {
+  if (window.history.length > 1) window.history.back();
+  else window.location.href = "/console/tools/announcements";
+};
+
+const loadAnnouncement = async () => {
+  if (!isEditMode.value || !announcementName.value) return;
+  try {
+    isLoading.value = true;
+    const { data } = await announcementApiClient.getAnnouncementByName({ name: announcementName.value });
+    const spec = data.announcementSpec as any;
+    title.value = spec.title || "";
+    type.value = spec.type || "";
+    permissions.value = spec.permissions || "everyone";
+    position.value = spec.position || "center";
+    autoClose.value = spec.autoClose || 0;
+    closeOnClickOutside.value = spec.closeOnClickOutside ?? true;
+    popupInterval.value = spec.popupInterval || 0;
+    confettiEnable.value = spec.confettiEnable ?? false;
+    popupIcon.value = spec.popupIcon || "";
+    popupIconBgColor.value = spec.popupIconBgColor || "#60a5fa";
+    enablePopup.value = spec.enablePopup ?? false;
+    enablePinning.value = spec.enablePinning ?? false;
+    primaryButtonText.value = spec.primaryButtonText || "确认";
+    primaryButtonColor.value = spec.primaryButtonColor || "#3b82f6";
+    primaryButtonAction.value = spec.primaryButtonAction || "closeNotice";
+    primaryButtonUrl.value = spec.primaryButtonUrl || "";
+    primaryButtonCallback.value = spec.primaryButtonCallback || "";
+    secondaryButtonText.value = spec.secondaryButtonText || "关闭";
+    secondaryButtonColor.value = spec.secondaryButtonColor || "#6b7280";
+    secondaryButtonAction.value = spec.secondaryButtonAction || "closeNotice";
+    secondaryButtonUrl.value = spec.secondaryButtonUrl || "";
+    secondaryButtonCallback.value = spec.secondaryButtonCallback || "";
+    urlPatterns.value = spec.urlPatterns || "";
+    html.value = spec.content || "";
+  } catch (e) {
+    Toast.error("加载公告失败");
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+const handleSubmit = async () => {
+  if (!title.value.trim()) return Toast.warning("请输入标题");
+  if (!html.value.trim()) return Toast.warning("请输入公告内容");
+
+  if (enablePopup.value) {
+    try {
+      const { data } = await announcementApiClient.listAnnouncements({ page: 1, size: 100, sort: undefined, keyword: undefined, announcementSpecPermissions: undefined });
+      const others = data.items.filter((a: Announcement) => a.metadata.name !== announcementName.value && (a.announcementSpec as any).enablePopup);
+      
+      const currentPerm = permissions.value;
+      for (const other of others) {
+        const otherPerm = (other.announcementSpec as any).permissions;
+        
+        // 如果其他弹窗是"所有人"，则当前不能启用任何弹窗
+        if (otherPerm === "everyone") {
+          Toast.error("已存在「所有人」可见的弹窗，无法创建新弹窗");
+          return;
+        }
+        
+        // 如果当前选了"所有人"，则不能有任何其他弹窗
+        if (currentPerm === "everyone" && others.length > 0) {
+          Toast.error("已存在其他弹窗，无法设置为「所有人」可见");
+          return;
+        }
+        
+        // 检查登录用户冲突
+        if (currentPerm === "loggedInUsers" && otherPerm === "loggedInUsers") {
+          Toast.error("已存在针对「登录用户」的弹窗");
+          return;
+        }
+        
+        // 检查未登录用户冲突
+        if (currentPerm === "nonLoggedInUsers" && otherPerm === "nonLoggedInUsers") {
+          Toast.error("已存在针对「未登录用户」的弹窗");
+          return;
+        }
+      }
+    } catch (e) {
+      Toast.error("无法完成唯一性校验");
+      return;
+    }
+  }
+
+  try {
+    isSubmitting.value = true;
+    const announcementSpec = {
+      title: title.value, type: type.value || undefined, permissions: permissions.value as any, content: html.value,
+      position: position.value, autoClose: Number(autoClose.value || 0), closeOnClickOutside: Boolean(closeOnClickOutside.value),
+      popupInterval: Number(popupInterval.value || 0), confettiEnable: Boolean(confettiEnable.value),
+      popupIcon: popupIcon.value || undefined, popupIconBgColor: popupIconBgColor.value || undefined,
+      enablePopup: Boolean(enablePopup.value), enablePinning: Boolean(enablePinning.value),
+      primaryButtonText: primaryButtonText.value || undefined, primaryButtonColor: primaryButtonColor.value || undefined,
+      primaryButtonAction: primaryButtonAction.value || undefined, primaryButtonUrl: primaryButtonUrl.value || undefined,
+      primaryButtonCallback: primaryButtonCallback.value || undefined,
+      secondaryButtonText: secondaryButtonText.value || undefined, secondaryButtonColor: secondaryButtonColor.value || undefined,
+      secondaryButtonAction: secondaryButtonAction.value || undefined, secondaryButtonUrl: secondaryButtonUrl.value || undefined,
+      secondaryButtonCallback: secondaryButtonCallback.value || undefined,
+      urlPatterns: urlPatterns.value || undefined,
+    };
+
+    if (isEditMode.value) {
+      const { data } = await announcementApiClient.getAnnouncementByName({ name: announcementName.value });
+      await announcementV1alpha1Api.updateAnnouncement({ name: announcementName.value, announcement: { ...data, announcementSpec } as any });
+      Toast.success("更新成功");
+    } else {
+      await announcementV1alpha1Api.createAnnouncement({
+        announcement: { apiVersion: "announcement.lik.cc/v1alpha1", kind: "Announcement", metadata: { name: slugify(title.value) || "announcement-" + Date.now() }, announcementSpec } as any
+      });
+      Toast.success("创建成功");
+    }
+    goBack();
+  } catch (e) {
+    Toast.error(isEditMode.value ? "更新失败" : "创建失败");
+  } finally {
+    isSubmitting.value = false;
+  }
+};
+
+onMounted(() => { loadAnnouncementTypes(); loadAnnouncement(); });
 </script>
 
 <template>
@@ -220,12 +225,6 @@ const positionOptions = [
     <template #actions>
       <VSpace>
         <VButton @click="goBack">返回</VButton>
-        <VButton @click="settingsModalVisible = true">
-          <template #icon>
-            <IconSettings class="h-full w-full" />
-          </template>
-          设置
-        </VButton>
         <VButton :loading="isSubmitting" type="secondary" @click="handleSubmit">
           {{ isEditMode ? '更新' : '发布' }}
         </VButton>
@@ -233,136 +232,83 @@ const positionOptions = [
     </template>
   </VPageHeader>
 
-  <div class="m-0 md:m-4">
-    <VCard :body-class="['!p-0']">
-      <VLoading v-if="isLoading" />
-      <div v-else class="editor-container">
-        <HaloEditor
-          v-model:raw="html"
-          v-model:content="html"
-          v-model:title="title"
-          :upload-image="handleUploadImage"
-        />
-      </div>
+  <VLoading v-if="isLoading" />
+  <div v-else class="p-4 flex gap-4">
+    <VCard class="flex-1 min-w-0" :body-class="['!p-0']">
+      <HaloEditor v-model:raw="html" v-model:content="html" v-model:title="title" :upload-image="handleUploadImage" />
     </VCard>
-  </div>
 
-  <!-- 设置弹窗 -->
-  <VModal
-    v-model:visible="settingsModalVisible"
-    title="公告设置"
-    :width="560"
-    @close="settingsModalVisible = false"
-  >
-    <FormKit type="form" :actions="false" class="settings-form">
-      <!-- 显示设置 -->
-      <div class="settings-section">
-        <div class="section-title">显示设置</div>
-
-        <FormKit
-          v-model="type"
-          type="select"
-          label="公告类型"
-          :options="typeOptions"
-          help="在插件设置中配置类型列表"
+    <div class="w-72 flex-shrink-0">
+      <VCard :body-class="['!p-0']">
+        <VTabbar
+          v-model:active-id="activeTab"
+          :items="[
+            { id: 'basic', label: '基本' },
+            { id: 'popup', label: '弹窗' },
+            { id: 'button', label: '按钮' }
+          ]"
+          type="outline"
+          class="w-full"
         />
         
-        <FormKit
-          v-model="enablePopup"
-          type="switch"
-          label="启用弹窗"
-          help="全局只能存在一个启用的弹窗"
-        />
+        <div class="p-4">
+          <!-- 基本设置 -->
+          <div v-if="activeTab === 'basic'">
+            <FormKit type="form" :actions="false">
+              <FormKit v-model="type" type="select" label="类型" :options="typeOptions" />
+              <FormKit v-model="permissions" type="select" label="可见范围" :options="permissionOptions" />
+              <FormKit v-model="enablePinning" type="switch" label="置顶显示" />
+              <FormKit v-model="enablePopup" type="switch" label="启用弹窗" />
+            </FormKit>
+          </div>
 
-        <FormKit
-          v-model="enablePinning"
-          type="switch"
-          label="置顶显示"
-          help="在公告列表中置顶显示"
-        />
+          <!-- 显示设置 -->
+          <div v-if="activeTab === 'popup'">
+            <div v-if="!enablePopup" class="text-sm text-gray-500 text-center py-8">
+              请先启用弹窗
+            </div>
+            <FormKit v-else type="form" :actions="false">
+              <FormKit v-model="popupIcon" type="iconify" label="弹窗图标" :value-only="true" format="svg" />
+              <FormKit v-model="popupIconBgColor" type="color" label="图标背景色" />
+              <FormKit v-model="position" type="select" label="弹窗位置" :options="positionOptions" />
+              <FormKit v-model="autoClose" type="number" label="自动关闭(秒)" :min="0" help="0 表示不自动关闭" />
+              <FormKit v-model="popupInterval" type="number" label="弹窗间隔(时)" :min="0" help="0 表示不限制" />
+              <FormKit v-model="closeOnClickOutside" type="switch" label="点击外部关闭" />
+              <FormKit v-model="confettiEnable" type="switch" label="礼花效果" />
+              <FormKit v-model="urlPatterns" type="textarea" label="URL匹配规则" rows="3" 
+                placeholder="每行一个路径，如：&#10;/&#10;/archives/*&#10;/categories/tech/*" 
+                help="为空或/表示仅首页，支持*通配符" />
+            </FormKit>
+          </div>
 
-        <FormKit
-          v-model="permissions"
-          type="select"
-          label="可见范围"
-          :options="permissionOptions"
-        />
-
-        <FormKit
-          v-model="position"
-          type="select"
-          label="弹窗位置"
-          :options="positionOptions"
-        />
-      </div>
-
-      <!-- 行为设置 -->
-      <div class="settings-section">
-        <div class="section-title">行为设置</div>
-
-        <FormKit
-          v-model="autoClose"
-          type="number"
-          label="自动关闭（秒）"
-          help="0 表示不自动关闭"
-          :min="0"
-        />
-
-        <FormKit
-          v-model="closeOnClickOutside"
-          type="switch"
-          label="点击外部关闭"
-          help="允许点击弹窗外部区域关闭"
-        />
-
-        <FormKit
-          v-model="popupInterval"
-          type="number"
-          label="弹窗间隔（小时）"
-          help="用户关闭后，间隔多少小时再次弹出，0 表示不限制"
-          :min="0"
-        />
-
-        <FormKit
-          v-model="confettiEnable"
-          type="switch"
-          label="礼花效果"
-          help="弹窗弹出时显示礼花动画"
-        />
-      </div>
-    </FormKit>
-
-    <template #footer>
-      <VSpace>
-        <VButton @click="settingsModalVisible = false">关闭</VButton>
-      </VSpace>
-    </template>
-  </VModal>
+          <!-- 按钮设置 -->
+          <div v-if="activeTab === 'button'">
+            <div v-if="!enablePopup" class="text-sm text-gray-500 text-center py-8">
+              请先启用弹窗
+            </div>
+            <FormKit v-else type="form" :actions="false">
+              <div class="space-y-4">
+                <div class="text-sm font-medium text-gray-900">主按钮</div>
+                <FormKit v-model="primaryButtonText" type="text" label="按钮文字" placeholder="确认" />
+                <FormKit v-model="primaryButtonColor" type="color" label="按钮颜色" />
+                <FormKit v-model="primaryButtonAction" type="select" label="按钮事件" :options="buttonActionOptions" />
+                <FormKit v-if="primaryButtonAction === 'jump' || primaryButtonAction === 'confirmJump'" v-model="primaryButtonUrl" type="text" label="跳转链接" placeholder="https://" />
+                <FormKit v-if="primaryButtonAction === 'callback'" v-model="primaryButtonCallback" type="code" label="JS代码" language="javascript" height="120px" help="点击按钮时执行的JS代码" />
+                
+                <div class="border-t border-gray-100 pt-4 mt-4">
+                  <div class="text-sm font-medium text-gray-900 mb-4">副按钮</div>
+                </div>
+                <FormKit v-model="secondaryButtonText" type="text" label="按钮文字" placeholder="关闭（留空不显示）" />
+                <FormKit v-model="secondaryButtonColor" type="color" label="按钮颜色" />
+                <FormKit v-model="secondaryButtonAction" type="select" label="按钮事件" :options="buttonActionOptions" />
+                <FormKit v-if="secondaryButtonAction === 'jump' || secondaryButtonAction === 'confirmJump'" v-model="secondaryButtonUrl" type="text" label="跳转链接" placeholder="https://" />
+                <FormKit v-if="secondaryButtonAction === 'callback'" v-model="secondaryButtonCallback" type="code" label="JS代码" language="javascript" height="120px" help="点击按钮时执行的JS代码" />
+              </div>
+            </FormKit>
+          </div>
+        </div>
+      </VCard>
+    </div>
+  </div>
 </template>
 
-<style scoped>
-.editor-container {
-  min-height: 70vh;
-}
-
-.settings-form {
-  padding: 8px 0;
-}
-
-.settings-section {
-  margin-bottom: 24px;
-}
-
-.settings-section:last-child {
-  margin-bottom: 0;
-}
-
-.section-title {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f3f4f6;
-}
-</style>

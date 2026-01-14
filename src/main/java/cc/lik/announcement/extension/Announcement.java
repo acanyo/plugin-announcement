@@ -27,10 +27,13 @@ public class Announcement extends AbstractExtension {
         @Schema(requiredMode = REQUIRED)
         private String title;
 
+        @Schema(description = "编辑器类型: richtext, code")
+        private String editorType;
+
         @Schema(description = "公告类型")
         private String type;
 
-        @Schema(requiredMode = REQUIRED, defaultValue = "pending")
+        @Schema(requiredMode = REQUIRED, defaultValue = "everyone")
         private ViewPermissions permissions;
 
         @Schema(requiredMode = REQUIRED)
@@ -50,6 +53,37 @@ public class Announcement extends AbstractExtension {
         private Boolean enablePopup; // 是否启用弹窗
         @Schema(requiredMode = REQUIRED)
         private Boolean enablePinning; // 是否开启置顶
+        
+        @Schema(description = "URL路径匹配规则，支持通配符*，每行一个，为空或/表示仅首页")
+        private String urlPatterns;
+
+        // 弹窗图标配置
+        @Schema(description = "弹窗图标，Iconify 图标名称，如 mdi:bell")
+        private String popupIcon;
+        @Schema(description = "弹窗图标背景色")
+        private String popupIconBgColor;
+
+        // 按钮配置
+        @Schema(description = "主按钮文字")
+        private String primaryButtonText;
+        @Schema(description = "主按钮颜色")
+        private String primaryButtonColor;
+        @Schema(description = "主按钮事件类型: closeNotice, jump, confirmJump, callback")
+        private String primaryButtonAction;
+        @Schema(description = "主按钮链接")
+        private String primaryButtonUrl;
+        @Schema(description = "主按钮JS回调代码")
+        private String primaryButtonCallback;
+        @Schema(description = "副按钮文字")
+        private String secondaryButtonText;
+        @Schema(description = "副按钮颜色")
+        private String secondaryButtonColor;
+        @Schema(description = "副按钮事件类型: closeNotice, jump, confirmJump, callback")
+        private String secondaryButtonAction;
+        @Schema(description = "副按钮链接")
+        private String secondaryButtonUrl;
+        @Schema(description = "副按钮JS回调代码")
+        private String secondaryButtonCallback;
 
         public enum ViewPermissions {
             loggedInUsers,

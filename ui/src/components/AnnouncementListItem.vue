@@ -9,8 +9,8 @@ import {
   Toast,
 } from "@halo-dev/components";
 import {type Announcement} from "@/api/generated";
-import {announcementApiClient, announcementV1alpha1Api} from "@/api";
-import { nextTick } from "vue";
+import {announcementV1alpha1Api} from "@/api";
+import MdiOpenInNew from "~icons/mdi/open-in-new";
 
 const props = withDefaults(
   defineProps<{
@@ -136,14 +136,21 @@ const handleTogglePinning = async () => {
 <template>
   <VEntity :is-selected="isSelected">
     <template #checkbox>
-      <HasPermission :permissions="['plugin:announcement:manage']">
+      <HasPermission :permissions="['plugin:announcement:delete']">
         <slot name="checkbox" />
       </HasPermission>
     </template>
     <template #start>
-      <VEntityField
-        :title="announcement.announcementSpec.title"
-      >
+      <VEntityField>
+        <template #title>
+          <span 
+            class="group inline-flex items-center gap-1 cursor-pointer"
+            @click="handleEdit"
+          >
+            <span class="font-medium text-gray-900">{{ announcement.announcementSpec.title }}</span>
+            <MdiOpenInNew class="h-3.5 w-3.5 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+          </span>
+        </template>
         <template #description>
           <div class="text-xs text-gray-500">
             <span>弹出设置：{{ getPositionText(announcement.announcementSpec.position) }}</span>
@@ -181,13 +188,15 @@ const handleTogglePinning = async () => {
       </VEntityField>
     </template>
     <template #dropdownItems>
-      <HasPermission :permissions="['plugin:announcement:manage']">
+      <HasPermission :permissions="['plugin:announcement:edit']">
         <VDropdownItem @click="handleEdit">
           编辑
         </VDropdownItem>
         <VDropdownItem @click="handleTogglePinning">
           {{ (announcement.announcementSpec as any).enablePinning ? '取消置顶' : '置顶' }}
         </VDropdownItem>
+      </HasPermission>
+      <HasPermission :permissions="['plugin:announcement:delete']">
         <VDropdownItem type="danger" @click="handleDelete">
           删除
         </VDropdownItem>

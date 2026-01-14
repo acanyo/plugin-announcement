@@ -15,7 +15,7 @@ import {
 } from "@halo-dev/components";
 import {announcementApiClient, announcementV1alpha1Api} from "@/api";
 import AnnouncementListItem from "@/components/AnnouncementListItem.vue";
-import IconAnnouncementMegaphone from '~icons/streamline-plump-color/announcement-megaphone?width=1.2em&height=1.2em';
+import IconAnnouncementMegaphone from '~icons/streamline-plump/announcement-megaphone?width=1.2em&height=1.2em';
 import type {Announcement, AnnouncementList} from "@/api/generated";
 import { useRouteQuery } from "@vueuse/router";
 import { useQuery } from "@tanstack/vue-query";
@@ -29,12 +29,16 @@ const page = useRouteQuery<number>("page", 1, { transform: Number });
 const size = useRouteQuery<number>("size", 20, { transform: Number });
 const selectedSort = useRouteQuery<string | undefined>("sort");
 const selectedPermissions = useRouteQuery<string | undefined>("permissions");
+const selectedPinning = useRouteQuery<string | undefined>("pinning");
+const selectedPopup = useRouteQuery<string | undefined>("popup");
 const total = ref(0);
 
 watch(
   () => [
     selectedPermissions.value,
     selectedSort.value,
+    selectedPinning.value,
+    selectedPopup.value,
     keyword.value,
   ],
   () => {
@@ -45,12 +49,16 @@ watch(
 const handleClearFilters = () => {
   selectedPermissions.value = undefined;
   selectedSort.value = undefined;
+  selectedPinning.value = undefined;
+  selectedPopup.value = undefined;
 };
 
 const hasFilters = computed(() => {
   return (
     selectedPermissions.value ||
-    selectedSort.value
+    selectedSort.value ||
+    selectedPinning.value ||
+    selectedPopup.value
   );
 });
 
@@ -67,14 +75,25 @@ const {
     keyword,
     selectedSort,
     selectedPermissions,
+    selectedPinning,
+    selectedPopup,
   ],
   queryFn: async () => {
+    const fieldSelector: string[] = [];
+    if (selectedPinning.value) {
+      fieldSelector.push(`announcementSpec.enablePinning=${selectedPinning.value}`);
+    }
+    if (selectedPopup.value) {
+      fieldSelector.push(`announcementSpec.enablePopup=${selectedPopup.value}`);
+    }
+    
     const { data } = await announcementApiClient.listAnnouncements({
       page: page.value,
       size: size.value,
       sort: selectedSort.value ? [selectedSort.value] : undefined,
       keyword: keyword.value,
-      announcementSpecPermissions: selectedPermissions.value
+      announcementSpecPermissions: selectedPermissions.value,
+      fieldSelector: fieldSelector.length > 0 ? fieldSelector : undefined,
     });
     total.value = data.total;
     return data;
@@ -154,7 +173,7 @@ const goCreate = () => {
       <IconAnnouncementMegaphone class="mr-2 self-center" />
     </template>
     <template #actions>
-      <VButton type="secondary" @click="goCreate">新建公告</VButton>
+      <VButton v-permission="['plugin:announcement:create']" type="secondary" @click="goCreate">新建公告</VButton>
     </template>
   </VPageHeader>
   <div class="m-0 md:m-4">
@@ -165,7 +184,7 @@ const goCreate = () => {
             class="relative flex flex-col flex-wrap items-start gap-4 sm:flex-row sm:items-center"
           >
             <div
-              v-permission="['plugin:announcement:manage']"
+              v-permission="['plugin:announcement:delete']"
               class="hidden items-center sm:flex"
             >
               <input
@@ -212,6 +231,42 @@ const goCreate = () => {
                   {
                     label: '不显示',
                     value: 'notShown',
+                  },
+                ]"
+              />
+              <FilterDropdown
+                v-model="selectedPinning"
+                label="置顶"
+                :items="[
+                  {
+                    label: '全部',
+                    value: undefined,
+                  },
+                  {
+                    label: '已置顶',
+                    value: 'true',
+                  },
+                  {
+                    label: '未置顶',
+                    value: 'false',
+                  },
+                ]"
+              />
+              <FilterDropdown
+                v-model="selectedPopup"
+                label="弹窗"
+                :items="[
+                  {
+                    label: '全部',
+                    value: undefined,
+                  },
+                  {
+                    label: '已开启',
+                    value: 'true',
+                  },
+                  {
+                    label: '未开启',
+                    value: 'false',
                   },
                 ]"
               />
