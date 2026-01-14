@@ -4,277 +4,105 @@ metadata:
   name: plugin-announcement-settings
 spec:
   forms:
-    - group: basic
-      label: 基本设置
+    - group: types
+      label: 公告类型
       formSchema:
-        - $el: a
+        - $el: div
           attrs:
-            href: "https://docs.lik.cc"
-            class: "py-4 block"
-            target: "_blank"
-            style:
-              color: "#1890ff"
-              fontSize: "0.875em"
-              display: "flex"
-              align-items: "center"
+            class: "text-sm"
+            style: |
+              margin-bottom: 1rem;
+              margin-top: -0.5rem;
+              padding: 0.75rem 1rem;
+              background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+              border-radius: 0.5rem;
+              border: 1px solid #bae6fd;
           children:
-            - $el: span
-              children: "查看 Ink AI 帮助文档"
-            - $el: img
+            - $el: div
               attrs:
-                src: "/plugins/announcement/assets/static/img/link.svg"
-                width: "14px"
-                height: "14px"
-                style:
-                  margin-left: "4px"
-        - $el: span
-          children: "Halo交流群"
-        - $el: img
-          attrs:
-            src: "https://www.lik.cc/upload/iShot_2025-03-03_16.03.00.png"
-            width: "100px"
-            height: "120px"
-            style:
-              margin-left: "80px"
-        - $formkit: checkbox
-          label: 开启公告
-          name: showOnLoad
-          id: showOnLoad
-          key: showOnLoad
-          value: true
-          help: "是否在页面加载时自动显示、关闭后将不会主动弹出"
-        - $formkit: attachment
-          if: $get(showOnLoad).value === true
-          label: 公告样式css
-          name: announcementStyle
-          id: announcementStyle
-          key: announcementStyle
-          value: "/plugins/announcement/assets/static/likcc-notification.css"
-          help: "样式css地址，默认使用插件内置样式"
-        - $formkit: text
-          if: $get(showOnLoad).value === true
-          name: title
-          key: title
-          id: title
-          label: 通知标题
-          placeholder: 请输入通知标题
-          validation: required
-          help: 用于弹窗标题
-        - $formkit: code
-          if: $get(showOnLoad).value === true
-          name: content
-          key: secondaryButtonCallback
-          id: secondaryButtonCallback
-          label: 通知内容
-          value: ""
-          language: html
-          height: 200px
-          help: 用于弹窗内容，支持 html 语法。
-        - $formkit: select
-          if: $get(showOnLoad).value === true
-          name: position
-          key: position
-          id: position
-          label: 弹窗位置
-          placeholder: 请选择弹窗显示位置
-          options:
-            - label: 居中
-              value: center
-            - label: 左下角
-              value: left-bottom
-            - label: 右下角
-              value: right-bottom
-            - label: 左上角
-              value: left-top
-            - label: 右上角
-              value: right-top
-          validation: required
-          help: 选择弹窗在页面上的显示位置
-        - $formkit: textarea
-          if: $get(showOnLoad).value === true
-          name: urlPatterns
-          key: urlPatterns
-          id: urlPatterns
-          label: 路径匹配规则
-          placeholder: 每行一个路径模式，如 / 或 /archives/*
-          help: 支持多个路径模式，每行一个
-        - $formkit: number
-          if: $get(showOnLoad).value === true
-          name: autoClose
-          key: autoClose
-          id: autoClose
-          label: 自动关闭时间（秒）
-          value: 0
-          help: 0 表示不自动关闭，其他为自动关闭秒数
-        - $formkit: checkbox
-          if: $get(showOnLoad).value === true
-          name: closeOnClickOutside
-          key: closeOnClickOutside
-          id: closeOnClickOutside
-          label: 点击外部关闭
-          value: true
-          help: 是否允许点击弹窗外部关闭通知
-        - $formkit: number
-          if: $get(showOnLoad).value === true
-          name: popupInterval
-          key: popupInterval
-          id: popupInterval
-          label: 弹窗弹出间隔（小时）
-          placeholder: 0 表示不限制
-          value: 0
-          help: 用户首次进入弹窗后，间隔多少小时再次弹出，为0或空表示不限制
-        - $formkit: checkbox
-          if: $get(showOnLoad).value === true
-          name: confettiEnable
-          key: confettiEnable
-          id: confettiEnable
-          label: 启用礼花爆炸效果
-          value: false
-          help: 是否在弹窗弹出时显示礼花爆炸动画
-    - group: button
-      label: 按钮设置
-      formSchema:
-        - $formkit: text
-          name: mainButtonText
-          key: mainButtonText
-          id: mainButtonText
-          label: 主按钮文字
-          placeholder: 请输入主按钮文字
-          validation: required
-          value: 确认
-          help: 主按钮显示的文字
-        - $formkit: color
-          name: mainButtonColor
-          key: mainButtonColor
-          id: mainButtonColor
-          label: 主按钮颜色
-          validation: required
-          value: "#165DFF"
-          help: 主按钮的颜色
-        - $formkit: select
-          name: mainButtonCallbackOption
-          key: mainButtonCallbackOption
-          id: mainButtonCallbackOption
-          label: 主按钮事件
-          placeholder: 请选择主按钮事件
-          options:
-            - label: 跳转
-              value: jump
-            - label: 确认跳转
-              value: confirmJump
-            - label: 关闭公告
-              value: closeNotice
-            - label: 自定义内容
-              value: customContent
-        - $formkit: text
-          if: $get(mainButtonCallbackOption).value === "jump" ||
-            $get(mainButtonCallbackOption).value === "confirmJump"
-          name: jumpUrl
-          key: jumpUrl
-          id: jumpUrl
-          label: 跳转Url
-          placeholder: 请输入跳转Url
-          validation: required
-          value: "https://www.lik.cc"
-          help: 用于点击主按钮时跳转的链接地址
-        - $formkit: text
-          if: $get(mainButtonCallbackOption).value === "confirmJump"
-          name: mianPopupContent
-          key: mianPopupContent
-          id: mianPopupContent
-          label: 主按钮自定义弹窗内容
-          placeholder: 请输入主按钮自定义弹窗内容
-          validation: required
-          value: "https://www.lik.cc"
-          help: 用于主按钮自定义弹窗内容
-        - $formkit: text
-          if: $get(mainButtonCallbackOption).value === "customContent"
-          name: mianCallback
-          key: mianCallback
-          id: mianCallback
-          label: 主按钮回调事件
-          validation: required
-          value: ""
-          help: 自定义主按钮回调事件下写的fun函数
-        - $formkit: code
-          if: $get(mainButtonCallbackOption).value === "customContent"
-          name: mainButtonCallback
-          key: mainButtonCallback
-          id: mainButtonCallback
-          label: 自定义主按钮回调事件
-          value: "<script></script>"
-          language: html
-          height: 200px
-          help: 自定义主按钮回调事件，仅支持 js 语法。
-        - $formkit: text
-          name: secondaryButtonText
-          key: secondaryButtonText
-          id: secondaryButtonText
-          label: 副按钮文字
-          placeholder: 请输入副按钮文字
-          validation: required
-          value: 关闭
-          help: 副按钮显示的文字
-        - $formkit: color
-          name: secondaryButtonColor
-          key: secondaryButtonColor
-          id: secondaryButtonColor
-          label: 副按钮颜色
-          validation: required
-          value: "#86909C"
-          help: 副按钮的颜色
-        - $formkit: select
-          name: secondaryButtonCallbackOption
-          key: secondaryButtonCallbackOption
-          id: secondaryButtonCallbackOption
-          label: 副按钮事件
-          placeholder: 请选择副按钮事件
-          options:
-            - label: 跳转
-              value: jump
-            - label: 确认跳转
-              value: confirmJump
-            - label: 关闭公告
-              value: closeNotice
-            - label: 自定义内容
-              value: customContent
-        - $formkit: text
-          if: $get(secondaryButtonCallbackOption).value === "jump" ||
-            $get(secondaryButtonCallbackOption).value === "confirmJump"
-          name: secondaryJumpUrl
-          key: secondaryJumpUrl
-          id: secondaryJumpUrl
-          label: 副按钮跳转Url
-          placeholder: 请输入副按钮跳转Url
-          validation: required
-          value: "https://www.lik.cc"
-          help: 用于点击副按钮时跳转的链接地址
-        - $formkit: text
-          if: $get(secondaryButtonCallbackOption).value === "confirmJump"
-          name: secondaryPopupContent
-          key: secondaryPopupContent
-          id: secondaryPopupContent
-          label: 副按钮自定义弹窗内容
-          placeholder: 请输入副按钮自定义弹窗内容
-          validation: required
-          value: "https://www.lik.cc"
-          help: 用于副按钮自定义弹窗内容
-        - $formkit: text
-          if: $get(secondaryButtonCallbackOption).value === "customContent"
-          name: secondaryCallback
-          key: secondaryCallback
-          id: secondaryCallback
-          label: 副按钮回调事件
-          validation: required
-          value: ""
-          help: 自定义副按钮回调事件下写的fun函数
-        - $formkit: code
-          if: $get(secondaryButtonCallbackOption).value === "customContent"
-          name: secondaryButtonCallback
-          key: secondaryButtonCallback
-          id: secondaryButtonCallback
-          label: 副按钮回调事件
-          value: "<script></script>"
-          language: html
-          height: 200px
-          help: 主按钮回调事件，不填写的话使用默认关闭，仅支持 js 语法。
+                style: |
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  flex-wrap: wrap;
+                  gap: 0.5rem;
+              children:
+                - $el: span
+                  attrs:
+                    style: "color: #0369a1;"
+                  children: "💬 遇到问题？加入 QQ 群 766203360 获取帮助"
+                - $el: div
+                  attrs:
+                    style: "display: flex; gap: 0.5rem;"
+                  children:
+                    - $el: a
+                      attrs:
+                        href: "https://qm.qq.com/q/mPJeUOtG5G"
+                        target: "_blank"
+                        style: |
+                          color: #fff;
+                          background: #0ea5e9;
+                          padding: 0.25rem 0.75rem;
+                          border-radius: 0.25rem;
+                          text-decoration: none;
+                          font-size: 0.75rem;
+                      children: "加入群聊"
+                    - $el: button
+                      attrs:
+                        type: "button"
+                        onclick: "navigator.clipboard.writeText('766203360').then(() => alert('已复制'))"
+                        style: |
+                          color: #0369a1;
+                          background: #fff;
+                          padding: 0.25rem 0.75rem;
+                          border-radius: 0.25rem;
+                          border: 1px solid #7dd3fc;
+                          cursor: pointer;
+                          font-size: 0.75rem;
+                      children: "复制群号"
+            - $el: a
+              attrs:
+                href: "https://docs.lik.cc"
+                target: "_blank"
+                style: |
+                  display: inline-flex;
+                  align-items: center;
+                  color: #0369a1;
+                  margin-top: 0.5rem;
+                  font-size: 0.75rem;
+              children:
+                - $el: span
+                  children: "📖 查看主题文档"
+                - $el: img
+                  attrs:
+                    src: "/plugins/announcement/assets/static/img/link.svg"
+                    width: "12px"
+                    height: "12px"
+                    style: "margin-left: 4px; opacity: 0.7;"
+        - $formkit: array
+          name: announcementTypes
+          label: 公告类型列表
+          addLabel: 添加类型
+          min: 0
+          value:
+            - displayName: 通知
+              color: "#3b82f6"
+            - displayName: 更新
+              color: "#22c55e"
+            - displayName: 警告
+              color: "#f59e0b"
+            - displayName: 重要
+              color: "#ef4444"
+          itemLabels:
+            - type: text
+              label: $value.displayName
+          children:
+            - $formkit: text
+              name: displayName
+              label: 类型名称
+              placeholder: 如 通知
+              validation: required
+            - $formkit: color
+              name: color
+              label: 类型颜色
+              value: "#3b82f6"

@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation platform('run.halo.tools.platform:plugin:2.22.0')
+    implementation platform('run.halo.tools.platform:plugin:2.22.5')
     compileOnly 'run.halo.app:api'
 
     testImplementation 'run.halo.app:api'
@@ -46,6 +46,31 @@ tasks.named('classes') {
 }
 
 halo {
-    version = '2.22'
+    version = '2.22.8'
 }
 
+haloPlugin {
+    openApi {
+        outputDir = file("$rootDir/api-docs/openapi/v3_0")
+        // 用于定义 API 分组规则
+        groupingRules {
+            // 此名称为 group name，定义后 groupedApiMappings 中的 /v3/api-docs/ 后的名称需要与之相同，要避免与 halo 中已经存在的 group 相同避免生成后出现与插件无关的 API
+            announcementApi {
+                // 分组显示名称
+                displayName = 'Extension API for Announcement'
+                // 分组的 API 规则
+                pathsToMatch = ["/apis/announcement.lik.cc/v1alpha1/**",
+                                "/apis/api.announcement.lik.cc/v1alpha1/**",
+                ]
+            }
+        }
+        groupedApiMappings = [
+                '/v3/api-docs/announcementApi': 'announcementApi.json'
+        ]
+        generator {
+            // 默认配置可缺省
+            outputDir = file("${projectDir}/ui/src/api/generated")
+        }
+    }
+
+}

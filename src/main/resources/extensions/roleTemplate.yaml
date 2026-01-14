@@ -1,0 +1,59 @@
+apiVersion: v1alpha1
+kind: "Role"
+metadata:
+  name: role-template-manage-announcement
+  labels:
+    halo.run/role-template: "true"
+  annotations:
+    rbac.authorization.halo.run/dependencies: |
+      [ "role-template-view-announcement" ]
+    rbac.authorization.halo.run/module: "公告"
+    rbac.authorization.halo.run/display-name: "公告管理"
+    rbac.authorization.halo.run/ui-permissions: |
+      ["plugin:announcement:manage", "plugin:announcement:create", "plugin:announcement:edit", "plugin:announcement:delete"]
+rules:
+  - apiGroups: [ "announcement.lik.cc" ]
+    resources: [ "announcements" ]
+    verbs: [ "*" ]
+  - apiGroups: [ "api.announcement.lik.cc" ]
+    resources: [ "announcements" ]
+    verbs: [ "*" ]
+
+---
+
+apiVersion: v1alpha1
+kind: "Role"
+metadata:
+  name: role-template-view-announcement
+  labels:
+    halo.run/role-template: "true"
+  annotations:
+    rbac.authorization.halo.run/module: "公告"
+    rbac.authorization.halo.run/display-name: "公告查看"
+    rbac.authorization.halo.run/ui-permissions: |
+      ["plugin:announcement:view"]
+rules:
+  - apiGroups: [ "announcement.lik.cc" ]
+    resources: [ "announcements" ]
+    verbs: [ "get", "list" ]
+  - apiGroups: [ "api.announcement.lik.cc" ]
+    resources: [ "announcements" ]
+    verbs: [ "get", "list" ]
+
+---
+
+apiVersion: v1alpha1
+kind: Role
+metadata:
+  name: role-template-anonymous-announcement
+  labels:
+    halo.run/hidden: "true"
+    halo.run/role-template: "true"
+    rbac.authorization.halo.run/aggregate-to-anonymous: "true"
+  annotations:
+    rbac.authorization.halo.run/module: "公告"
+    rbac.authorization.halo.run/display-name: "匿名访问"
+rules:
+  - apiGroups: [ "public.announcement.lik.cc" ]
+    resources: [ "*" ]
+    verbs: [ "get", "list" ]

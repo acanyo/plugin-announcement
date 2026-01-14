@@ -5,6 +5,11 @@ plugins {
 
 group 'cc.lik.announcement.ui'
 
+node {
+    download = false
+    pnpmWorkDir = file("${System.getProperty('user.home')}/.pnpm")
+}
+
 tasks.register('pnpmBuild', PnpmTask) {
     group = 'build'
     description =  'Build the UI project using pnpm'

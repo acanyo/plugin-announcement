@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>公告</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+      background: #f3f4f6; 
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+    .container { 
+      max-width: 680px; 
+      margin: 0 auto; 
+    }
+    h1 { 
+      font-size: 20px; 
+      font-weight: 600; 
+      color: #111827;
+      margin-bottom: 16px; 
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>公告</h1>
+    <announcement-list></announcement-list>
+  </div>
+  
+  <!-- 引入 JS 自动弹窗 -->
+  <script type="module" src="/src/index.ts"></script>
+</body>
+</html>
