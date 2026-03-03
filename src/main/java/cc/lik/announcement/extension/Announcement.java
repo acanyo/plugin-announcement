@@ -84,6 +84,8 @@ public class Announcement extends AbstractExtension {
         private String secondaryButtonUrl;
         @Schema(description = "副按钮JS回调代码")
         private String secondaryButtonCallback;
+        @Schema(description = "按钮布局: vertical(上下), horizontal(左右)")
+        private String buttonLayout;
 
         public enum ViewPermissions {
             loggedInUsers,

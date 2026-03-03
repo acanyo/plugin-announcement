@@ -18,6 +18,28 @@ const defaultConfig: PopupConfig = {
   confetti: false,
 };
 
+const VALID_POSITIONS = new Set([
+  "center",
+  "left-bottom",
+  "right-bottom",
+  "left-top",
+  "right-top",
+]);
+const VALID_BUTTON_LAYOUTS = new Set([
+  "vertical",
+  "horizontal",
+]);
+
+function normalizePosition(position?: string): string {
+  if (!position) return "center";
+  return VALID_POSITIONS.has(position) ? position : "center";
+}
+
+function normalizeButtonLayout(layout?: string): string {
+  if (!layout) return "vertical";
+  return VALID_BUTTON_LAYOUTS.has(layout) ? layout : "vertical";
+}
+
 function getStorageKey(name: string) {
   return `likcc-popup-${name}-lastTime`;
 }
@@ -84,7 +106,7 @@ function recordShow(ann: Announcement, config: PopupConfig) {
   }
 }
 
-function createPopupElement(ann: Announcement): HTMLElement {
+function createPopupElement(ann: Announcement, config: PopupConfig): HTMLElement {
   const spec = ann.announcementSpec;
   const primaryText = spec?.primaryButtonText || "确认";
   const primaryColor = spec?.primaryButtonColor || "#3b82f6";
@@ -98,9 +120,11 @@ function createPopupElement(ann: Announcement): HTMLElement {
   const secondaryCallback = spec?.secondaryButtonCallback || "";
   const popupIconSvg = spec?.popupIcon || "";
   const popupIconBgColor = spec?.popupIconBgColor || "#60a5fa";
+  const popupPosition = normalizePosition(config.position || spec?.position);
+  const buttonLayout = normalizeButtonLayout(spec?.buttonLayout);
 
   const overlay = document.createElement("div");
-  overlay.className = "likcc-popup__overlay";
+  overlay.className = `likcc-popup__overlay likcc-popup__overlay--${popupPosition}`;
   
   // 对 callback 进行 HTML 转义，避免 XSS
   const escapeHtml = (str: string) => str.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -129,7 +153,7 @@ function createPopupElement(ann: Announcement): HTMLElement {
         <h2 class="likcc-popup__title">${spec?.title || ""}</h2>
       </div>
       <div class="likcc-popup__content">${spec?.content || ""}</div>
-      <div class="likcc-popup__footer">
+      <div class="likcc-popup__footer likcc-popup__footer--${buttonLayout}">
         ${buttonsHtml}
       </div>
     </div>
@@ -148,11 +172,33 @@ function injectStyles() {
       inset: 0;
       z-index: 99999;
       display: flex;
-      justify-content: center;
-      align-items: center;
       padding: 20px;
       background: rgba(0, 0, 0, 0.4);
       animation: likcc-fade 0.2s ease;
+    }
+    .likcc-popup__overlay--center {
+      justify-content: center;
+      align-items: center;
+    }
+    .likcc-popup__overlay--left-bottom {
+      justify-content: flex-start;
+      align-items: flex-end;
+      background: rgba(0, 0, 0, 0.12);
+    }
+    .likcc-popup__overlay--right-bottom {
+      justify-content: flex-end;
+      align-items: flex-end;
+      background: rgba(0, 0, 0, 0.12);
+    }
+    .likcc-popup__overlay--left-top {
+      justify-content: flex-start;
+      align-items: flex-start;
+      background: rgba(0, 0, 0, 0.12);
+    }
+    .likcc-popup__overlay--right-top {
+      justify-content: flex-end;
+      align-items: flex-start;
+      background: rgba(0, 0, 0, 0.12);
     }
     @keyframes likcc-fade { from { opacity: 0; } }
     
@@ -236,6 +282,17 @@ function injectStyles() {
     
     .likcc-popup__footer {
       margin-top: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .likcc-popup__footer--horizontal {
+      flex-direction: row;
+      align-items: stretch;
+    }
+    .likcc-popup__footer--horizontal .likcc-popup__btn {
+      width: auto;
+      flex: 1 1 0;
     }
     
     .likcc-popup__btn {
@@ -259,7 +316,6 @@ function injectStyles() {
       background-color: rgba(37, 99, 235, 1);
     }
     .likcc-popup__btn--secondary {
-      margin-top: 0.5rem;
       background-color: rgba(249, 250, 251, 1);
       color: rgba(107, 114, 128, 1);
       border: none;
@@ -327,7 +383,7 @@ async function initPopup() {
     injectStyles();
 
     // 创建弹窗
-    const overlay = createPopupElement(ann);
+    const overlay = createPopupElement(ann, config);
     document.body.appendChild(overlay);
     document.body.style.overflow = "hidden";
 

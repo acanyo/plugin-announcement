@@ -36,6 +36,7 @@ const secondaryButtonColor = ref("#6b7280");
 const secondaryButtonAction = ref("closeNotice");
 const secondaryButtonUrl = ref("");
 const secondaryButtonCallback = ref("");
+const buttonLayout = ref("vertical");
 const urlPatterns = ref("");
 const html = ref("");
 const isLoading = ref(false);
@@ -64,6 +65,11 @@ const buttonActionOptions = [
   { label: "跳转链接", value: "jump" },
   { label: "确认后跳转", value: "confirmJump" },
   { label: "JS回调", value: "callback" },
+];
+
+const buttonLayoutOptions = [
+  { label: "上下布局", value: "vertical" },
+  { label: "左右布局", value: "horizontal" },
 ];
 
 async function loadAnnouncementTypes() {
@@ -127,6 +133,7 @@ const loadAnnouncement = async () => {
     secondaryButtonAction.value = spec.secondaryButtonAction || "closeNotice";
     secondaryButtonUrl.value = spec.secondaryButtonUrl || "";
     secondaryButtonCallback.value = spec.secondaryButtonCallback || "";
+    buttonLayout.value = spec.buttonLayout || "vertical";
     urlPatterns.value = spec.urlPatterns || "";
     html.value = spec.content || "";
   } catch (e) {
@@ -193,6 +200,7 @@ const handleSubmit = async () => {
       secondaryButtonText: secondaryButtonText.value || undefined, secondaryButtonColor: secondaryButtonColor.value || undefined,
       secondaryButtonAction: secondaryButtonAction.value || undefined, secondaryButtonUrl: secondaryButtonUrl.value || undefined,
       secondaryButtonCallback: secondaryButtonCallback.value || undefined,
+      buttonLayout: buttonLayout.value || "vertical",
       urlPatterns: urlPatterns.value || undefined,
     };
 
@@ -288,6 +296,13 @@ onMounted(() => { loadAnnouncementTypes(); loadAnnouncement(); });
             </div>
             <FormKit v-else type="form" :actions="false">
               <div class="space-y-4">
+                <FormKit
+                  v-model="buttonLayout"
+                  type="select"
+                  label="按钮布局"
+                  :options="buttonLayoutOptions"
+                  help="上下布局：主按钮在上、副按钮在下；左右布局：两个按钮左右并排。"
+                />
                 <div class="text-sm font-medium text-gray-900">主按钮</div>
                 <FormKit v-model="primaryButtonText" type="text" label="按钮文字" placeholder="确认" />
                 <FormKit v-model="primaryButtonColor" type="color" label="按钮颜色" />
@@ -311,4 +326,3 @@ onMounted(() => { loadAnnouncementTypes(); loadAnnouncement(); });
     </div>
   </div>
 </template>
-

@@ -30,6 +30,7 @@ export interface Announcement {
     secondaryButtonAction?: string;
     secondaryButtonUrl?: string;
     secondaryButtonCallback?: string;
+    buttonLayout?: string;
   };
 }
 

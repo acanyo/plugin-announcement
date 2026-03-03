@@ -152,13 +152,13 @@
 {#if show && current}
   <div 
     class="likcc-ann-modal__overlay" 
-    onclick={close} 
+    onclick={(e) => e.target === e.currentTarget && close()} 
     onkeydown={e => e.key === 'Escape' && close()}
     role="dialog" 
     aria-modal="true"
     tabindex="-1"
   >
-    <div class="likcc-ann-modal" onclick={e => e.stopPropagation()} role="document">
+    <div class="likcc-ann-modal" role="document">
       <div class="likcc-ann-modal__header">
         <h2 class="likcc-ann-modal__title">{current.announcementSpec?.title}</h2>
         <span class="likcc-ann-modal__date">{fmt(current.metadata?.creationTimestamp)}</span>
